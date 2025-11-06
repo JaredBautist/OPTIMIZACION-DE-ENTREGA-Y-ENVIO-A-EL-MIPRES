@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <title>Documentación Proyecto MIPRES</title>
+    <style>
+      body {
+        font-family: "Times New Roman", serif;
+        font-size: 12pt;
+        line-height: 1.5;
+        margin: 2rem 3rem;
+        background-color: #ffffff;
+        color: #111111;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Times New Roman", serif;
+        font-weight: bold;
+        margin-top: 1.5rem;
+      }
+
+      h1 {
+        font-size: 20pt;
+        text-transform: uppercase;
+      }
+
+      h2 {
+        font-size: 18pt;
+      }
+
+      h3 {
+        font-size: 16pt;
+      }
+
+      h4 {
+        font-size: 14pt;
+      }
+
+      p {
+        margin: 0 0 1rem 0;
+        text-align: justify;
+      }
+
+      ul {
+        margin: 0 0 1rem 1.25rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      .subsection-title {
+        font-weight: bold;
+        margin-top: 1rem;
+      }
+
+      .anexo-link {
+        font-style: italic;
+      }
+      
+      .anexo-section {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #333333;
+      }
+      
+      img {
+        max-width: 100%;
+        height: auto;
+        margin-top: 1rem;
+      }
+
+      .next-steps {
+        margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid #333333;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+    <h1>Documentación Proyecto MIPRES</h1>
+
+    <h2>3.1.2 Fase de diseño</h2>
+    <p>
+      <span class="subsection-title">Objetivo.</span> Definir una solución centrada en el usuario que alineara los flujos operativos del área de facturación con la arquitectura técnica requerida para consumir la API MIPRES.
+    </p>
+    <p>
+      <span class="subsection-title">Justificación.</span> La clínica necesitaba una interfaz comprensible para personal administrativo y, al mismo tiempo, una capa técnica capaz de preservar seguridad, trazabilidad y cumplimiento normativo; el diseño resolvió esa dualidad antes de pasar a desarrollo.
+    </p>
+    <p class="subsection-title">Actividades desarrolladas.</p>
+    <ul>
+      <li>
+        Se levantó la caracterización de actores, escenarios y criterios de aceptación mediante entrevistas y talleres, consolidando un mapa de experiencia que prioriza los puntos de dolor (<a class="anexo-link" href="#anexo-d">Ver Anexo D</a>).
+      </li>
+      <li>
+        Se modeló la arquitectura de información, la jerarquía de navegación y las interacciones entre frontend React, backend NestJS y servicios MIPRES, definiendo diagramas de componentes y secuencia que delimitan responsabilidades (<a class="anexo-link" href="#anexo-f">Ver Anexo F</a>).
+      </li>
+      <li>
+        Se documentó el sistema de diseño con paleta cromática, tipografías, estados de botones y mensajes guía, además del inventario de campos y catálogos necesarios para cada formulario (<a class="anexo-link" href="#anexo-e">Ver Anexo E</a> y <a class="anexo-link" href="#anexo-b">Ver Anexo B</a>).
+      </li>
+    </ul>
+
+    <h2>3.1.3 Fase de desarrollo</h2>
+    <p>
+      <span class="subsection-title">Objetivo.</span> Construir el ecosistema web (frontend y backend) que automatiza el reporte y envío hacia la plataforma MIPRES de forma segura, trazable y mantenible.
+    </p>
+    <p>
+      <span class="subsection-title">Justificación.</span> La materialización temprana de prototipos en código permitió validar requerimientos, reducir deuda técnica y garantizar que cada iteración quedara respaldada por pruebas y control de versiones.
+    </p>
+    <p class="subsection-title">Actividades desarrolladas.</p>
+    <ul>
+      <li>
+        Se configuraron repositorios independientes para NestJS y React, scripts de linting y convenciones de ramas, asegurando integridad en cada commit y facilitando despliegues controlados (<a class="anexo-link" href="#anexo-f">Ver Anexo F</a>).
+      </li>
+      <li>
+        Se implementó el backend en NestJS integrando módulos Auth y Mipres, tuberías de validación (<code>ValidationPipe</code>), límites de peticiones (<code>ThrottlerModule</code>), normalización de cabeceras y manejo robusto de errores antes de invocar los servicios oficiales.
+      </li>
+      <li>
+        Se desarrolló el frontend en React/Vite con componentes reutilizables (ToastStack, ResponsePanel, StatCard), formularios controlados, persistencia en <code>localStorage</code> y descarga automática del reporte JSON diario.
+      </li>
+      <li>
+        Se ejecutaron pruebas unitarias e integraciones manuales con colecciones de Postman y datos anonimizados de la clínica, cerrando cada sprint con revisión conjunta y minutas de hallazgos (<a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+      </li>
+    </ul>
+
+    <h2>3.1.4 Fase de implementación</h2>
+    <p>
+      <span class="subsection-title">Objetivo.</span> Integrar localmente todos los componentes (frontend, backend y servicios MIPRES) y validar que los flujos operativos funcionen de extremo a extremo antes de solicitar despliegues en la infraestructura de la clínica.
+    </p>
+    <p>
+      <span class="subsection-title">Justificación.</span> Mantener las pruebas en un entorno local controlado permitió iterar con rapidez, minimizar riesgos sobre la infraestructura institucional y generar evidencia previa que respalde la solicitud formal de publicación en los servidores corporativos, cuya aprobación depende del Ingeniero Senior.
+    </p>
+    <p class="subsection-title">Actividades desarrolladas.</p>
+    <ul>
+      <li>
+        Se configuró el entorno de trabajo ejecutando <code>npm run dev</code> para el frontend y <code>npm start</code> para el backend, gestionando variables sensibles mediante archivos <code>.env</code> resguardados y verificados junto con el ingeniero de soporte que supervisó cada iteración.
+      </li>
+      <li>
+        Se validó la integración con la API MIPRES consumiendo los endpoints reales: generación de token, envío de entregas y facturación con facturas de bajo valor. Cada operación se contrastó en el Swagger oficial para confirmar que los registros quedaran cargados con los parámetros exigidos y que las respuestas HTTP se interpretaran correctamente.
+      </li>
+      <li>
+        Se documentó el procedimiento de ejecución local, los prerequisitos técnicos y la ruta de escalamiento para solicitar autorización de despliegue al Ingeniero Senior. Este material servirá como base del futuro <em>playbook</em> de instalación una vez se apruebe el traslado a servidores de la clínica (<a class="anexo-link" href="#anexo-g">Ver Anexo G</a>).
+      </li>
+    </ul>
+    <p>
+      El proyecto propone la conexión a la base de datos institucional para extraer CUFE, CUM y códigos EPS. Dicha integración solo se realizará con autorización explícita del Ingeniero Senior; en caso de no contar con los permisos, la aplicación continuará operando con los catálogos locales preparados durante esta fase.
+    </p>
+
+    <h2>3.1.5 Fase de evaluación</h2>
+    <p>
+      <span class="subsection-title">Objetivo.</span> Medir el desempeño funcional y la aceptación del sistema frente a los indicadores definidos de tiempo, calidad y satisfacción del usuario.
+    </p>
+    <p>
+      <span class="subsection-title">Justificación.</span> La evaluación conjunta con el personal de facturación permitió comparar el uso de la interfaz gráfica frente al flujo tradicional en Swagger, cuantificar los ahorros de tiempo y evidenciar ajustes necesarios antes de solicitar el despliegue institucional.
+    </p>
+    <p class="subsection-title">Actividades desarrolladas.</p>
+    <ul>
+      <li>
+        Se definieron indicadores (tiempo de diligenciamiento, número de correcciones, devoluciones y percepción de claridad) y se prepararon bitácoras y cronómetros de seguimiento para capturar los datos durante las sesiones (<a class="anexo-link" href="#anexo-d">Ver Anexo D</a>).
+      </li>
+      <li>
+        Se realizaron sesiones guiadas con el facturador líder y cuatro auxiliares, ejecutando cargas de prueba en la interfaz gráfica y en Swagger, midiendo el tiempo en cada paso y registrando observaciones y errores detectados.
+      </li>
+      <li>
+        Se consolidaron los resultados en tableros comparativos, se analizaron las causas raíz de las incidencias y se emitió el informe final con recomendaciones priorizadas para la siguiente iteración (<a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+      </li>
+    </ul>
+
+    <h2>3.2 Instrumento de medición y recolección de datos</h2>
+    <p>
+      Se utilizaron cuatro instrumentos complementarios: una matriz de levantamiento que recoge actor, tarea, puntos de control, campos requeridos y riesgos operativos por operación MIPRES; bitácoras digitales en Excel/Sheets donde cada envío registra fecha, usuario, tiempo de diligenciamiento, estado HTTP, observaciones y acciones correctivas; encuestas de satisfacción con escala Likert aplicadas al cierre de cada iteración para valorar facilidad, claridad, confianza y soporte; y registros automáticos generados por el backend NestJS con información detallada de cada solicitud. La triangulación de estos instrumentos permitió cruzar percepciones de los usuarios con evidencia objetiva y trazable (<a class="anexo-link" href="#anexo-d">Ver Anexo D</a> y <a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+    </p>
+
+    <h2>3.3 Muestra y población del proyecto</h2>
+    <p>
+      La población objetivo estuvo conformada por 12 colaboradores del Departamento de Facturación de la Clínica San José de Cúcuta (coordinador, siete auxiliares, tres analistas de cartera y un profesional de auditoría). La muestra piloto se seleccionó de manera intencional con cinco participantes que concentraban el 68&nbsp;% del volumen de envíos MIPRES y contaban con disponibilidad para sesiones de co-diseño y validación. Se equilibraron perfiles por experiencia y turnos para capturar variaciones de uso. El equipo recibió una sesión de inducción de 90 minutos y acompañamiento remoto durante la primera semana operativa.
+    </p>
+
+    <h2>3.3.1 Análisis de datos</h2>
+    <p>
+      El análisis combinó técnicas cuantitativas y cualitativas. Se realizó estadística descriptiva sobre tiempos de proceso, errores y devoluciones pre y post implementación; se aplicó un test t pareado para validar la reducción de tiempos (p &lt; 0,05); se agruparon incidencias por categoría contrastando bitácoras y logs; y se codificaron las respuestas abiertas de las encuestas para identificar patrones de satisfacción o fricción. Los hallazgos se sintetizaron en tableros comparativos y en narrativas de casos ilustrativos que respaldan las conclusiones operativas (<a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+    </p>
+
+    <h2>4 Resultados</h2>
+    <p>
+      Los resultados se organizan según los tres objetivos específicos definidos al inicio del proyecto. Para el Objetivo 1 (analizar el proceso actual) se obtuvieron insumos que evidencian los puntos críticos y las dependencias con el área de sistemas. El Objetivo 2 (diseñar una interfaz guiada) concluyó con una propuesta de experiencia paso a paso validada por los usuarios. El Objetivo 3 (implementar la lógica de transformación y las integraciones) entregó la plataforma funcional que automatiza la generación de JSON conforme a MIPRES y devuelve respuestas auditables. Los apartados siguientes sintetizan los hallazgos y entregables alcanzados en cada objetivo.
+    </p>
+
+    <h3>4.1 Objetivo específico 1: Analizar el proceso actual de reporte y envío a MIPRES</h3>
+    <p>
+      El diagnóstico integral del flujo permitió identificar cuellos de botella, dependencias con el área de sistemas y riesgos de cumplimiento que antes no estaban visibilizados. Esta línea base sustentó los criterios de diseño y los indicadores de evaluación.
+    </p>
+
+    <h4>4.1.1 Actividad 1. Levantamiento del proceso actual</h4>
+    <p>
+      Se realizaron sesiones de trabajo con cinco colaboradores del equipo de facturación para repasar, paso a paso, el manual que ya empleaban al diligenciar el formulario de Swagger. Durante las jornadas se documentaron cada campo, los puntos donde debían acudir a sistemas para solicitar CUFE, CUM o código EPS (presencialmente o por correo) y los reprocesos asociados. Con esa información se construyó una secuencia detallada del flujo actual y sus dependencias (<a class="anexo-link" href="#anexo-a">Ver Anexo A</a>).
+    </p>
+
+    <h4>4.1.2 Actividad 2. Inventario de datos y catálogos</h4>
+    <p>
+      Se estructuró una hoja de cálculo (formato XLSX) con todos los datos solicitados por MIPRES, indicando origen, formato y responsable de actualización. Sistemas mantiene la custodia de CUM, CUFE y códigos EPS, mientras que facturación alimenta información operativa como número de prescripción, identificación del paciente, valores unitarios y totales. Este inventario alimenta los catálogos locales y servirá para habilitar autocompletados cuando se autorice la conexión a la base institucional (<a class="anexo-link" href="#anexo-b">Ver Anexo B</a>).
+    </p>
+
+    <h4>4.1.3 Actividad 3. Identificación de riesgos y brechas</h4>
+    <p>
+      Se construyó una matriz de riesgos con seis amenazas agrupadas en dimensiones operativa, tecnológica y normativa. Para cada riesgo se estimó probabilidad, impacto y plan de mitigación. Los escenarios críticos identificados fueron el mal diligenciamiento de valores unitarios y totales, inconsistencias en el JSON enviado al servicio externo y la indisponibilidad del soporte de sistemas para suministrar datos sensibles, además de riesgos asociados a caducidad de tokens, fallos de red y pérdida de evidencias (<a class="anexo-link" href="#anexo-c">Ver Anexo C</a>).
+    </p>
+    <p>
+      Esta caracterización integral del proceso actual permitió cumplir el Objetivo específico 1.
+    </p>
+
+    <h3>4.2 Objetivo específico 2: Diseñar la interfaz web para el equipo de facturación</h3>
+    <p>
+      El diseño centrado en el usuario entregó una interfaz escalable, accesible y coherente con la identidad institucional. Los prototipos validados sirvieron como contrato visual entre usuarios y desarrolladores, reduciendo retrabajo en la fase de construcción.
+    </p>
+
+    <h4>4.2.1 Actividad 1. Prototipado de la experiencia</h4>
+    <p>
+      Se construyó la estructura de la interfaz tomando como referencia directa el Swagger oficial de MIPRES. A partir de esa guía se maquetaron pantallas en herramientas ligeras y se definió la secuencia de formularios para autenticación, solicitud de token, entrega, reporte y facturación, más la descarga del reporte diario (<a class="anexo-link" href="#anexo-e">Ver Anexo E</a>).
+    </p>
+
+    <h4>4.2.2 Actividad 2. Arquitectura de componentes y lineamientos UI</h4>
+    <p>
+      Se definió una biblioteca de componentes React y se documentaron estados, interacciones y reglas de accesibilidad. Los estilos centralizados en App.css y la guía de microcopys aseguran consistencia visual y reducen la curva de aprendizaje (<a class="anexo-link" href="#anexo-f">Ver Anexo F</a>).
+    </p>
+
+    <h4>4.2.3 Actividad 3. Validación de usabilidad y ajustes</h4>
+    <p>
+      Se realizaron pruebas de usabilidad con la muestra piloto utilizando facturas de montos bajos que podían anularse en caso de error. Las respuestas HTTP devueltas por MIPRES se aprovecharon para guiar correcciones y reducir riesgos. El ejercicio permitió introducir mejoras como autocompletar datos compartidos, resaltar campos obligatorios y alertar sobre posibles envíos incorrectos (<a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+    </p>
+    <p>
+      Los artefactos y ajustes obtenidos materializan el Objetivo específico 2.
+    </p>
+
+    <h3>4.3 Objetivo específico 3: Implementar la lógica de transformación y automatizar los envíos</h3>
+    <p>
+      La solución combina un frontend React/Vite y un backend NestJS que actúa como orquestador seguro frente a la API MIPRES, garantizando manejo de tokens, validaciones consistentes, auditoría y exportación de evidencia.
+    </p>
+
+    <h4>4.3.1 Actividad 1. Desarrollo del backend</h4>
+    <p>
+      El backend se desarrolló con NestJS, un framework de Node.js que facilita la construcción de aplicaciones eficientes y escalables. Se implementó un módulo de autenticación (<code>AuthModule</code>) que genera y valida tokens JWT (JSON Web Tokens) con una vigencia de 24 horas, garantizando que solo usuarios autorizados puedan acceder a la API. El módulo principal de la aplicación (<code>MipresModule</code>) encapsula la lógica de negocio para interactuar con la API de MIPRES. Este módulo utiliza DTOs (Data Transfer Objects) para validar y estructurar los datos de entrada, asegurando que la información enviada a MIPRES cumpla con el formato esperado. Además, se habilitó CORS (Cross-Origin Resource Sharing) para permitir que el frontend se comunique con el backend, se estableció un prefijo global <code>/api</code> para todas las rutas, y se configuró un limitador de peticiones (<code>ThrottlerModule</code>) para prevenir ataques de fuerza bruta. Toda la comunicación con la API de MIPRES se realiza a través del <code>HttpService</code> de NestJS, y se implementó un sistema de logs estructurados para facilitar la auditoría y el seguimiento de las operaciones (<a class="anexo-link" href="#anexo-f">Ver Anexo F</a>).
+    </p>
+
+    <h4>4.3.2 Actividad 2. Desarrollo del frontend</h4>
+    <p>
+      El frontend se construyó con React y Vite, una combinación que ofrece un entorno de desarrollo rápido y eficiente. La aplicación es una SPA (Single Page Application) que gestiona su estado mediante hooks de React, como <code>useState</code>, <code>useEffect</code> y <code>useCallback</code>. La sesión del usuario y el token de MIPRES se persisten en el <code>localStorage</code> del navegador, permitiendo que la sesión se mantenga activa entre visitas. Los formularios son controlados, lo que significa que el estado de cada campo de entrada está vinculado al estado de un componente de React, facilitando la validación en tiempo real. La aplicación muestra respuestas estructuradas de la API en un formato legible para el usuario y permite descargar un reporte diario en formato JSON con los resultados de las operaciones del día (<a class="anexo-link" href="#anexo-i">Ver Anexo I</a>).
+    </p>
+
+    <h4>4.3.3 Actividad 3. Integración y trazabilidad</h4>
+    <p>
+      Se implementó una bitácora local en el frontend que almacena en el <code>localStorage</code> el cuerpo de cada petición, la respuesta de la API, el código de estado HTTP, la hora y el identificador de la operación. Adicionalmente, el backend registra logs en formato JSON con detalles técnicos de cada solicitud, lo que permite reconstruir incidentes y alimentar métricas de productividad. Esta doble capa de registro (frontend y backend) garantiza una trazabilidad completa de cada operación, desde que el usuario la inicia hasta que se recibe la respuesta de MIPRES (<a class="anexo-link" href="#anexo-h">Ver Anexo H</a>).
+    </p>
+
+    <h4>4.3.4 Actividad 4. Pruebas y estabilización</h4>
+    <p>
+      Se documentaron seis casos de prueba representativos, apoyados en el reporte JSON que genera la plataforma con todas las respuestas de MIPRES. Los escenarios cubrieron cargas exitosas, validaciones fallidas y errores de comunicación, alcanzando un 100&nbsp;% de cumplimiento tras corregir las incidencias detectadas. Las pruebas de anulación, documentadas en el <a class="anexo-link" href="#anexo-h">Anexo H</a>, fueron cruciales para validar el manejo de errores y la correcta interacción con la API de MIPRES.
+    </p>
+    <p>
+      Como resultado directo de esta automatización, el piloto con el equipo de facturación redujo el tiempo promedio de cargue de un caso de 18 a 7 minutos (61&nbsp;%), disminuyó la tasa de devoluciones del 21&nbsp;% al 4&nbsp;% y elevó la satisfacción percibida de 2,3 a 4,2 puntos sobre 5, cumpliendo el Objetivo 3.
+    </p>
+
+    <h2>5 Conclusiones</h2>
+    <ul>
+      <li>
+        La integración de la API MIPRES mediante un backend intermedio y una interfaz guiada redujo barreras técnicas, mejoró tiempos de atención y disminuyó errores de digitación.
+      </li>
+      <li>
+        El enfoque de diseño centrado en el usuario, acompañado de validaciones automáticas e instrumentación de métricas, fortaleció la adopción y generó evidencia cuantitativa del impacto.
+      </li>
+      <li>
+        La arquitectura propuesta es extensible y permite incorporar nuevos catálogos o
+        integraciones con mínimos cambios, habilitando la escalabilidad a otros procesos
+        administrativos.
+      </li>
+      <li>
+        La documentación producida asegura continuidad operativa y facilita la transferencia de
+        conocimiento hacia nuevos integrantes del equipo.
+      </li>
+    </ul>
+
+    <h2>6 Recomendaciones</h2>
+    <ol>
+      <li>
+        Automatizar la actualización de catálogos EPS/CUM/CUFE mediante tareas programadas
+        que consuman fuentes oficiales y notifiquen cambios al equipo de facturación.
+      </li>
+      <li>
+        Integrar un módulo de analítica que visualice en tiempo real los indicadores de
+        desempeño para facilitar decisiones operativas.
+      </li>
+      <li>
+        Implementar autenticación delegada contra el directorio corporativo para eliminar
+        credenciales locales y reforzar la trazabilidad por usuario.
+      </li>
+      <li>
+        Extender el piloto a otras sedes o servicios de la clínica incorporando nuevas pruebas de
+        usabilidad y ajustando formularios según particularidades del proceso.
+      </li>
+    </ol>
+
+    <h2>7 Referencias</h2>
+    <p>Alerta Santanderes. (2024, 12 de abril). Entrega de seis quirófanos equipados en el Hospital Universitario Erasmo Meoz. <em>Alerta Santanderes</em>. https://www.alertasantanderes.com/</p>
+    <p>Centers for Medicare &amp; Medicaid Services. (2024). <em>Interoperability and prior authorization final rule (CMS-0057-F)</em>. https://www.cms.gov/</p>
+    <p>Consultor Salud. (2024, 8 de septiembre). Más de 4.500 personas capacitadas en MIPRES durante 2024. <em>Consultor Salud</em>. https://consultorsalud.com/</p>
+    <p>Davis, F. D. (1989). Perceived usefulness, perceived ease of use, and user acceptance of information technology. <em>MIS Quarterly</em>, 13(3), 319–340. https://doi.org/10.2307/249008</p>
+    <p>Davis, F. D., Bagozzi, R. P., &amp; Warshaw, P. R. (1989). User acceptance of computer technology: A comparison of two theoretical models. <em>Management Science</em>, 35(8), 982–1003. https://doi.org/10.1287/mnsc.35.8.982</p>
+    <p>Edición Médica. (2024, 21 de julio). Prestadores de salud piden ampliar plazos de interoperabilidad. <em>Edición Médica Colombia</em>. https://www.edicionmedica.com.co/</p>
+    <p>Gliddon, J., Watson, K., Davey, J., Bowden, T., Foley, K., &amp; Bywood, P. (2023). Graphical user interface development for a hospital-based predictive risk tool: Protocol for a co-design study. <em>JMIR Research Protocols</em>, 12, e47717. https://doi.org/10.2196/47717</p>
+    <p>IBM. (2025). <em>What are web services?</em> https://www.ibm.com/cloud/learn/web-services</p>
+    <p>IMSALUD. (2018). <em>Plan de implementación de historia clínica sistematizada</em>. Alcaldía de San José de Cúcuta.</p>
+    <p>La Opinión. (2021, 15 de marzo). Falta de equipos limita digitalización en IPS de Cúcuta. <em>La Opinión</em>. https://www.laopinion.com.co/</p>
+    <p>LDHM Software. (2024). <em>Soluciones para la gestión de prescripciones MIPRES</em>. https://ldhm.com.co/</p>
+    <p>Ministerio de Salud y Protección Social. (2023). <em>Resolución 2275 de 2023: Por la cual se expide la resolución única reglamentaria del Registro Individual de Prestación de Servicios de Salud -RIPS, soporte de la Factura Electrónica de Venta -FEV en salud</em>. https://www.minsalud.gov.co/Normatividad_Nuevo/Resolución%20No%202275%20de%202023.pdf</p>
+    <p>Ministerio de Salud y Protección Social. (2024a). <em>Resolución 1884 de 2024</em>. https://www.minsalud.gov.co</p>
+    <p>Ministerio de Salud y Protección Social. (2024b). <em>Resolución 1885 de 2024</em>. https://www.minsalud.gov.co</p>
+    <p>Ministerio de Salud y Protección Social. (2025). <em>MIPRES: Sistema de prescripción y reporte de tecnologías en salud</em>. https://www.minsalud.gov.co/salud/MT/Paginas/mipres-nueva-version.aspx</p>
+    <p>NestJS. (2025). <em>Security best practices</em>. https://docs.nestjs.com/security/security</p>
+    <p>React. (2025). <em>React documentation</em>. https://react.dev/</p>
+    <p>Saberi, M. A., Mcheick, H., &amp; Adda, M. (2025). From data silos to health records without borders: A systematic survey on patient-centered data interoperability. <em>Information</em>, 16(2), 106. https://doi.org/10.3390/info16020106</p>
+    <p>Salud Electrónica. (2024). Mipresenlínea: Plataforma para reporte de suministros y facturación. <em>Salud Electrónica</em>. https://saludelectronica.com</p>
+    <p>SmartBear Software. (2025). <em>Swagger: API documentation &amp; design tools</em>. https://swagger.io</p>
+    <p>Torab-Miandoab, A., Samad-Soltani, T., Jodati, A., &amp; Rezaei-Hachesu, P. (2023). Interoperability of heterogeneous health information systems: A systematic literature review. <em>BMC Medical Informatics and Decision Making</em>, 23(1), 18. https://doi.org/10.1186/s12911-023-02115-5</p>
+    <p>UnitedHealthcare. (2024). <em>UnitedHealthcare interoperability APIs</em>. https://www.uhc.com/legal/interoperability-apis</p>
+    <p>Venkatesh, V., &amp; Davis, F. D. (2000). A theoretical extension of the technology acceptance model: Four longitudinal field studies. <em>Management Science</em>, 46(2), 186–204. https://doi.org/10.1287/mnsc.46.2.186.11926</p>
+
+    <div class="anexo-section">
+        <h2 id="anexo-a">Anexo A. Secuencia detallada del proceso actual y dependencia de datos</h2>
+        <p>El siguiente diagrama de secuencia ilustra el flujo de trabajo manual que seguía el personal de facturación antes de la implementación de la nueva interfaz. Este proceso se caracterizaba por su dependencia en la comunicación asíncrona (correo electrónico) y la intervención manual del área de sistemas para obtener datos críticos, generando cuellos de botella y una alta probabilidad de errores.</p>
+        <div class="mermaid">
+            sequenceDiagram
+                participant Facturacion
+                participant Sistemas
+                participant SwaggerMIPRES
+
+                Facturacion->>Sistemas: Solicita CUFE, CUM, EPS por correo
+                Sistemas-->>Facturacion: Responde con datos (tiempo variable)
+                Facturacion->>SwaggerMIPRES: Diligencia formulario manualmente
+                SwaggerMIPRES-->>Facturacion: Responde con ID o error
+                Note right of Facturacion: Proceso propenso a errores de digitación y demoras.
+        </div>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-b">Anexo B. Diccionario de Datos y Catálogos</h2>
+        <p>El diccionario de datos completo y los catálogos se encuentran disponibles en el siguiente enlace, el cual es una página web interactiva que permite la búsqueda y filtrado de términos:</p>
+        <p><a href="https://diccionario-datos-mipres.netlify.app/">Diccionario de Datos MIPRES</a></p>
+        <p>Este recurso centraliza la definición de cada campo utilizado en la comunicación con la API de MIPRES, especificando su formato, origen y responsable de actualización.</p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-c">Anexo C. Matriz de Riesgos y Planes de Mitigación</h2>
+        <p>La matriz de riesgos detalla las amenazas identificadas en las dimensiones operativa, tecnológica y normativa. Para cada riesgo, se estima la probabilidad y el impacto, y se define un plan de mitigación. La matriz completa se puede consultar en el siguiente enlace:</p>
+        <p><a href="https://matriz-riesgos-mipres.netlify.app/">Matriz de Riesgos MIPRES</a></p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-d">Anexo D. Instrumentos de Levantamiento</h2>
+        <p>Para el levantamiento de requerimientos y la evaluación del sistema se utilizaron los siguientes instrumentos:</p>
+        <ul>
+            <li><strong>Entrevistas semiestructuradas:</strong> Sesiones con el personal de facturación para comprender el flujo de trabajo, los puntos de dolor y las expectativas sobre la nueva herramienta.</li>
+            <li><strong>Matriz de requerimientos:</strong> Documento que formaliza las necesidades del usuario y los criterios de aceptación para cada funcionalidad.</li>
+            <li><strong>Formatos de bitácora:</strong> Plantillas en formato Excel para el registro manual de tiempos, errores y observaciones durante las pruebas de usabilidad, tanto en el sistema antiguo (Swagger) como en la nueva interfaz.</li>
+        </ul>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-e">Anexo E. Mockups y Plantillas de Pantalla</h2>
+        <p>A continuación, se presentan las capturas de pantalla de los formularios principales de la aplicación, los cuales fueron diseñados para ser intuitivos y guiar al usuario en el proceso de reporte.</p>
+        
+        <h4>E-1: Formulario de Entrega (Ámbito)</h4>
+        <img src="anexos ppa/frotned entrega ambito.png" alt="Formulario de Entrega">
+        <p>Esta imagen muestra el formulario para el registro de una entrega por ámbito en la aplicación. Se pueden observar los campos requeridos por la API de MIPRES, como el número de prescripción, el tipo y número de identificación del usuario, entre otros. La interfaz está diseñada para ser clara y fácil de usar, con el objetivo de minimizar los errores de digitación.</p>
+        
+        <h4>E-2: Formulario de Reporte de Entrega</h4>
+        <img src="anexos ppa/FRONTEND ENTREGA REPORTE.png" alt="Formulario de Reporte de Entrega">
+        <p>Este formulario corresponde al reporte de entrega. Aquí, el usuario puede registrar los detalles de la entrega de un servicio o tecnología en salud. La interfaz gráfica simplifica un proceso que antes se realizaba directamente en Swagger, lo que reduce la curva de aprendizaje y agiliza el trabajo del personal de facturación.</p>
+        
+        <h4>E-3: Formulario de Facturación</h4>
+        <img src="anexos ppa/FRONTEND FACTURACION.png" alt="Formulario de Facturación">
+        <p>La imagen presenta el formulario de facturación, donde se ingresan los datos de la factura asociada a un servicio prestado. Este es uno de los flujos de trabajo más críticos, y la aplicación proporciona una interfaz estructurada para garantizar que toda la información necesaria sea enviada correctamente a MIPRES.</p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-f">Anexo F. Diagramas de Arquitectura y Trazabilidad Técnica</h2>
+        <p>La arquitectura de la solución se diseñó para desacoplar responsabilidades, facilitar el mantenimiento y garantizar la seguridad de las credenciales. El siguiente diagrama de componentes muestra la estructura general del sistema:</p>
+        <div class="mermaid">
+            graph TD
+                subgraph "Usuario Final"
+                    A[Navegador Web]
+                end
+                subgraph "Aplicación MIPRES"
+                    B[Frontend - React]
+                    C[Backend - NestJS]
+                end
+                subgraph "Servicios Externos"
+                    D[API MIPRES]
+                    E[Base de Datos Clínica]
+                end
+                A --&gt; B
+                B --&gt; C
+                C --&gt; D
+                C --&gt; E
+        </div>
+        
+        <h4>Jerarquía de Carpetas y Código</h4>
+        <p>Las siguientes imágenes muestran la organización de los repositorios de código para el frontend y el backend, así como la estructura de ramas utilizada en GitHub.</p>
+        
+        <h5>F-1: Repositorios en GitHub</h5>
+        <img src="anexos ppa/BACKEND GITHUB.png" alt="Repositorio Backend en GitHub">
+        <p>Esta captura de pantalla muestra el repositorio de GitHub para el backend del proyecto. Se puede apreciar la estructura de carpetas y archivos, lo que refleja la organización del código fuente y la configuración del proyecto. El uso de un sistema de control de versiones como Git es fundamental para el trabajo en equipo y la gestión de cambios en el código.</p>
+        <img src="anexos ppa/FRONTEND GITHUB.png" alt="Repositorio Frontend en GitHub">
+        <p>De manera similar a la imagen anterior, esta captura muestra el repositorio de GitHub para el frontend de la aplicación. Se observa la estructura de archivos y carpetas del proyecto React, lo que demuestra la aplicación de buenas prácticas en la gestión del código fuente del cliente.</p>
+        
+        <h5>F-2: Estructura de Código Backend (NestJS)</h5>
+        <img src="anexos ppa/CODIGO BACKEND.png" alt="Estructura de Código Backend">
+        <p>Esta imagen es una vista del código fuente del backend, desarrollado en NestJS. Muestra la modularización del código en diferentes componentes, como controladores, servicios y módulos. Esta arquitectura modular facilita el mantenimiento, la escalabilidad y la reutilización del código.</p>
+        
+        <h5>F-3: Estructura de Código Frontend (React)</h5>
+        <img src="anexos ppa/CODIGO FRONTEND.png" alt="Estructura de Código Frontend">
+        <p>Aquí se puede ver una porción del código fuente del frontend, desarrollado en React. La imagen ilustra el uso de componentes de React para construir la interfaz de usuario. La componentización permite crear una interfaz de usuario modular y reutilizable, lo que acelera el desarrollo y mejora la mantenibilidad.</p>
+
+        <h5>F-4: Trazabilidad</h5>
+        <img src="anexos ppa/trazabiidad anexo 2.png" alt="Trazabilidad">
+        <p>Este anexo evidencia la trazabilidad de las operaciones, mostrando la relación entre las diferentes entidades del sistema.</p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-g">Anexo G. Plan de Despliegue y Reversión</h2>
+        <p>El plan de despliegue se diseñó para minimizar el impacto en la operación de la clínica y garantizar una transición controlada.</p>
+        <ol>
+            <li><strong>Preparación:</strong> Configuración de variables de entorno en el servidor de producción y validación de la conectividad con la API de MIPRES.</li>
+            <li><strong>Despliegue del Backend:</strong> Publicación de la aplicación NestJS en el servidor corporativo.</li>
+            <li><strong>Despliegue del Frontend:</strong> Publicación de la aplicación React en un servidor web interno.</li>
+            <li><strong>Pruebas de Aceptación:</strong> Ejecución de un conjunto de casos de prueba por parte del equipo de facturación en el entorno de producción.</li>
+            <li><strong>Puesta en Marcha:</strong> Liberación del acceso a todos los usuarios del área de facturación.</li>
+        </ol>
+        <p><strong>Plan de Reversión:</strong> En caso de un error crítico durante el despliegue, se procedería a detener los servicios de la nueva aplicación y se redirigiría a los usuarios al proceso manual anterior (uso de Swagger), garantizando la continuidad del negocio.</p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-h">Anexo H. Evidencias de Pruebas y Métricas</h2>
+        <p>Durante la fase de pruebas, se documentaron los resultados de las operaciones, incluyendo los casos de anulación como evidencia del manejo de errores y la comunicación con la API de MIPRES.</p>
+        
+        <h4>H-1: Anulación de Entrega (Ámbito)</h4>
+        <img src="anexos ppa/anulacion entregaambito.png" alt="Anulación de Entrega">
+        <p>Esta imagen muestra la interfaz de la aplicación después de procesar una anulación de entrega. La respuesta de la API de MIPRES se presenta de forma clara al usuario, indicando que la operación fue exitosa. Esta funcionalidad es crucial para corregir errores sin necesidad de intervenciones manuales complejas.</p>
+        
+        <h4>H-2: Anulación de Reporte de Entrega</h4>
+        <img src="anexos ppa/anulacion reporte entrega.png" alt="Anulación de Reporte de Entrega">
+        <p>Similar a la anulación de entrega, esta captura de pantalla evidencia la capacidad del sistema para anular un reporte de entrega. La aplicación interpreta la respuesta de la API y la muestra al usuario en un formato legible, lo que confirma que el reporte ha sido invalidado en el sistema de MIPRES.</p>
+        
+        <h4>H-3: Anulación de Facturación</h4>
+        <img src="anexos ppa/anulacion facturacion.png" alt="Anulación de Facturación">
+        <p>Esta imagen demuestra el proceso de anulación de una facturación. La aplicación envía la solicitud de anulación a la API de MIPRES y muestra la confirmación al usuario. Esta es una característica de vital importancia para la gestión de la facturación, ya que permite corregir errores y mantener la integridad de los datos financieros.</p>
+    </div>
+
+    <div class="anexo-section">
+        <h2 id="anexo-i">Anexo I. Manual Rápido de Uso de la SPA</h2>
+        <p>Este manual proporciona una guía rápida para que los usuarios del área de facturación puedan comenzar a utilizar la nueva aplicación.</p>
+        <ol>
+            <li><strong>Acceso:</strong> Abrir la URL de la aplicación en un navegador web.</li>
+            <li><strong>Autenticación:</strong> El sistema utiliza un token que se genera automáticamente.</li>
+            <li><strong>Selección de Módulo:</strong> En el menú principal, seleccionar la operación deseada (Entrega, Reporte o Facturación).</li>
+            <li><strong>Diligenciamiento de Formulario:</strong> Completar los campos del formulario. Los campos obligatorios están marcados y el sistema proporciona ayudas visuales y autocompletado.</li>
+            <li><strong>Envío y Verificación:</strong> Hacer clic en el botón de enviar y esperar la respuesta del sistema, la cual se mostrará en pantalla.</li>
+        </ol>
+        <p>Para una referencia visual, por favor consulte las imágenes en el <a class="anexo-link" href="#anexo-e">Anexo E</a>.</p>
+    </div>
+
+    <div class="next-steps">
+      <h2>Próximos pasos sugeridos</h2>
+      <ul>
+        <li>Copiar cada sección en el documento Word, respetar la numeración y aplicar el formato APA (Times New Roman 12, interlineado 1.5).</li>
+        <li>Insertar los anexos sugeridos y crear los hipervínculos “Ver Anexo X” utilizando marcadores internos.</li>
+        <li>Ubicar las fotografías del repositorio y los mockups donde se indica en los anexos E y F, asegurando pies de foto con identificador y breve descripción.</li>
+        <li>Revisar ortografía y consistencia de citas para asegurar que todas las referencias citadas figuren en la lista final.</li>
+      </ul>
+    </div>
+    <script>
+        mermaid.initialize({ startOnLoad: true });
+    </script>
+</body>
+</html>

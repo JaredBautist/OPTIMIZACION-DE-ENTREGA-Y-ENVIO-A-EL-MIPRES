@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manual de Usuario - MIPRES</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            line-height: 1.6;
+            margin: 20px;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        h1 {
+            text-align: center;
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-top: 30px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .credentials {
+            background: #e7e7e7;
+            padding: 15px;
+            border-left: 4px solid #4CAF50;
+        }
+        .note {
+            background: #fff3cd;
+            padding: 15px;
+            border-left: 4px solid #ffc107;
+        }
+        .response {
+            background: #d4edda;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+        }
+        .error {
+            background: #f8d7da;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Manual de Usuario - Aplicativo MIPRES</h1>
+
+        <h2>1. Introducción</h2>
+        <p>Este manual describe cómo utilizar el aplicativo para la gestión de MIPRES, incluyendo la generación de tokens, entrega en ámbito, reporte de entrega y facturación.</p>
+        <p>El objetivo es guiar al usuario final en el uso correcto de la herramienta para asegurar la correcta radicación de facturas.</p>
+
+        <h2>2. Inicio de Sesión y Generación de Token</h2>
+        <p>Para comenzar, es necesario iniciar sesión y generar un token diario. Este token es indispensable para realizar cualquier operación en el sistema.</p>
+        
+        <div class="credentials">
+            <h3>Credenciales de Acceso</h3>
+            <p><strong>NIT:</strong> 800012189</p>
+            <p><strong>Token Master:</strong> (Por políticas de la clínica, este dato es confidencial)</p>
+        </div>
+
+        <p>Las credenciales para iniciar sesión y generar el token de envío diario son las mismas.</p>
+        <img src="anexos ppa/inicio de sesion.png" alt="Inicio de Sesión">
+        <p>Una vez iniciada la sesión, se debe generar el token.</p>
+        <img src="anexos ppa/trazabiliad y generacion del token.png" alt="Generación de Token">
+
+        <h2>3. Módulos del Aplicativo</h2>
+        <p>El aplicativo se divide en tres módulos principales que siguen un flujo de trabajo específico.</p>
+
+        <h3>3.1. Entrega en Ámbito</h3>
+        <p>Este es el primer paso del proceso. Aquí se registra la entrega de los servicios o tecnologías en salud.</p>
+        <img src="anexos ppa/frotned entrega ambito.png" alt="Formulario de Entrega en Ámbito">
+        <p>Se deben diligenciar todos los campos del formulario con la información correcta. Al enviar la información, el sistema MIPRES devolverá una respuesta.</p>
+        
+        <div class="response">
+            <h4>Respuesta Exitosa</h4>
+            <p>Si los datos son correctos, la respuesta incluirá un <strong>ID</strong> y un <strong>ID de Entrega</strong>. Es crucial guardar estos dos identificadores, ya que serán necesarios para los siguientes pasos.</p>
+        </div>
+
+        <div class="error">
+            <h4>Respuesta de Error</h4>
+            <p>Si hay algún error en los datos enviados, el sistema mostrará un mensaje de error HTTP proporcionado por MIPRES, indicando cuál es el campo o el dato incorrecto a corregir.</p>
+        </div>
+
+        <h3>3.2. Reporte de Entrega</h3>
+        <p>En este módulo se utiliza el <strong>ID</strong> obtenido en el paso anterior (Entrega en Ámbito) para reportar la entrega.</p>
+        <img src="anexos ppa/FRONTEND ENTREGA REPORTE.png" alt="Formulario de Reporte de Entrega">
+        <p>Al igual que en el módulo anterior, se deben completar los campos requeridos.</p>
+
+        <div class="response">
+            <h4>Respuesta Exitosa</h4>
+            <p>Una respuesta exitosa generará nuevos IDs que también deben ser almacenados para el proceso de facturación.</p>
+        </div>
+
+        <h3>3.3. Facturación</h3>
+        <p>Este es el último paso del flujo principal. Aquí se utilizan los IDs generados en los módulos de "Entrega en Ámbito" y "Reporte de Entrega" para la radicación de la factura.</p>
+        <img src="anexos ppa/FRONTEND FACTURACION.png" alt="Formulario de Facturación">
+        <p>Es fundamental que todos los IDs previos se ingresen correctamente para que la factura pueda ser procesada y radicada sin inconvenientes.</p>
+
+        <h2>4. Anulaciones</h2>
+        <p>El sistema también permite anular registros en cada uno de los módulos en caso de ser necesario.</p>
+
+        <h3>4.1. Anulación de Entrega en Ámbito</h3>
+        <img src="anexos ppa/anulacion entregaambito.png" alt="Anulación de Entrega en Ámbito">
+
+        <h3>4.2. Anulación de Reporte de Entrega</h3>
+        <img src="anexos ppa/anulacion reporte entrega.png" alt="Anulación de Reporte de Entrega">
+
+        <h3>4.3. Anulación de Facturación</h3>
+        <img src="anexos ppa/anulacion facturacion.png" alt="Anulación de Facturación">
+
+        <h2>5. Trazabilidad y Arquitectura</h2>
+        <p>Para una comprensión más técnica, a continuación se muestran imágenes de la trazabilidad y la arquitectura del sistema.</p>
+        <img src="anexos ppa/trazabiidad anexo 2.png" alt="Trazabilidad del Proceso">
+        <img src="anexos ppa/BACKEND GITHUB.png" alt="Arquitectura Backend">
+        <img src="anexos ppa/FRONTEND GITHUB.png" alt="Arquitectura Frontend">
+        <img src="anexos ppa/CODIGO BACKEND.png" alt="Código Backend">
+        <img src="anexos ppa/CODIGO FRONTEND.png" alt="Código Frontend">
+
+    </div>
+</body>
+</html>

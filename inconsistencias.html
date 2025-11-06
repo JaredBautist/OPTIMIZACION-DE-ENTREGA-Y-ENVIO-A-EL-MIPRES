@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inconsistencias del Proyecto MIPRES</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; margin: 2em; }
+        h1, h2 { color: #333; }
+        .inconsistency { border-left: 4px solid #f44336; padding-left: 1em; margin-bottom: 1em; }
+        .code { background-color: #f4f4f4; padding: 0.5em; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Inconsistencias y Problemas Detectados en el Proyecto MIPRES</h1>
+
+    <div class="inconsistency">
+        <h2>Anexos Faltantes</h2>
+        <p>El documento "PPA_MODELO_2025.docx.pdf" hace referencia a varios anexos (D, E, F, G, H, I) que no se encontraron en el proyecto. Estos anexos son cruciales para entender el diseño, la arquitectura y la implementación del sistema.</p>
+        <ul>
+            <li><b>Anexo D:</b> Instrumentos de levantamiento (entrevistas, matriz de requerimientos).</li>
+            <li><b>Anexo E:</b> Mockups y plantillas de pantalla.</li>
+            <li><b>Anexo F:</b> Diagramas de arquitectura y trazabilidad técnica.</li>
+            <li><b>Anexo G:</b> Plan de despliegue y checklist de operación.</li>
+            <li><b>Anexo H:</b> Evidencias de pruebas y métricas.</li>
+            <li><b>Anexo I:</b> Manual rápido de uso y capturas de la SPA.</li>
+        </ul>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Contenido Incorrecto del Anexo C</h2>
+        <p>La URL proporcionada para el "Anexo C" (matriz-riesgos-mipres.netlify.app) muestra una "Matriz de Responsabilidades" en lugar de la "Matriz de riesgos y planes de mitigación" que se describe en el documento.</p>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Falla de Seguridad en la Autenticación</h2>
+        <p>El backend tiene una vulnerabilidad de seguridad crítica. El servicio de autenticación (`auth.service.ts`) genera un token JWT para cualquier usuario con solo proporcionar un nombre de usuario, sin validar la contraseña. Esto permite el acceso no autorizado al sistema.</p>
+        <pre class="code">
+// nest-backend/src/auth/auth.service.ts
+@Injectable()
+export class AuthService {
+  constructor(private readonly jwtService: JwtService) {}
+
+  login({ username }: LoginDto) {
+    const token = this.jwtService.sign({ username });
+    return {
+      success: true,
+      token,
+      message: 'Inicio de sesión exitoso',
+    };
+  }
+}
+        </pre>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Valores Hardcodeados en el Frontend</h2>
+        <p>El frontend (`App.jsx`) contiene valores harcodeados para el NIT y el Token Master. Esto es una mala práctica y debería ser configurable.</p>
+        <pre class="code">
+// mipres-frontend/src/App.jsx
+const DEFAULT_NIT = '800012189';
+const DEFAULT_TOKEN_MASTER = '8DF6875B-EA49-48A8-B251-5947924F9824';
+        </pre>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Arquitectura del Frontend en un Solo Archivo</h2>
+        <p>Toda la lógica del frontend se encuentra en un único archivo (`App.jsx`). Esto dificulta el mantenimiento y la escalabilidad de la aplicación. Se recomienda refactorizar el código y dividirlo en componentes más pequeños y reutilizables.</p>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Falta de Conexión a la Base de Datos</h2>
+        <p>El documento menciona que la aplicación se conectará a una base de datos institucional para obtener catálogos (CUFE, CUM, EPS). Sin embargo, el backend no implementa ninguna conexión a base de datos; solo actúa como un proxy hacia la API de MIPRES.</p>
+    </div>
+
+    <div class="inconsistency">
+        <h2>Ausencia de Pruebas</h2>
+        <p>El proyecto carece de pruebas unitarias y de integración tanto en el frontend como en el backend. Aunque el documento menciona una fase de "Pruebas y estabilización", no hay evidencia de su implementación.</p>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diccionario de Datos - MIPRES</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .tabla-container {
+            background-color: white;
+            border: 2px solid #000;
+            margin-bottom: 30px;
+            padding: 0;
+        }
+        .header {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-bottom: 2px solid #000;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .header-item {
+            font-size: 12px;
+        }
+        .header-item strong {
+            font-weight: bold;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th {
+            background-color: #d0d0d0;
+            border: 1px solid #000;
+            padding: 8px;
+            text-align: left;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        td {
+            border: 1px solid #000;
+            padding: 8px;
+            font-size: 11px;
+        }
+        .relaciones {
+            background-color: #f9f9f9;
+            padding: 10px;
+            border-top: 2px solid #000;
+            font-size: 11px;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #000;
+            padding-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>DICCIONARIO DE DATOS - SISTEMA MIPRES</h1>
+    <p><strong>Proyecto:</strong> Optimización del Reporte y Envío de Facturas de Suministros al Ministerio de Salud</p>
+    <p><strong>Fecha de creación:</strong> 03/11/2025</p>
+
+    <!-- TABLA 1: EntregaAmbito -->
+    <div class="tabla-container">
+        <div class="header">
+            <div class="header-item"><strong>Nombre de Archivo:</strong> EntregaAmbito</div>
+            <div class="header-item"><strong>Fecha de creación:</strong> 03/11/2025</div>
+            <div class="header-item" style="grid-column: 1 / -1;"><strong>Descripción:</strong> Registro de entregas de tecnologías en salud realizadas en el ámbito de atención del paciente</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tamaño</th>
+                    <th>Tipo de Dato</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>NoPrescripcion</td>
+                    <td>50</td>
+                    <td>Caracter</td>
+                    <td>Número único de prescripción asignado por MIPRES</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>TipoTec</td>
+                    <td>2</td>
+                    <td>Caracter</td>
+                    <td>Tipo de tecnología en salud (medicamento, dispositivo, procedimiento, servicio complementario)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>ConTec</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Consecutivo de la tecnología dentro de la prescripción</td>
+                    <td>Sistemas</td>
+                </tr>
+                <tr>
+                    <td>TipoIDPaciente</td>
+                    <td>2</td>
+                    <td>Caracter</td>
+                    <td>Tipo de identificación del paciente (CC, TI, RC, CE, PA, MS, AS)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoIDPaciente</td>
+                    <td>20</td>
+                    <td>Caracter</td>
+                    <td>Número de identificación del paciente</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoEntrega</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Número consecutivo de la entrega</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>CodSerTecEntregado</td>
+                    <td>20</td>
+                    <td>Caracter</td>
+                    <td>Código CUM del medicamento o servicio/tecnología entregado</td>
+                    <td>Sistemas</td>
+                </tr>
+                <tr>
+                    <td>CantTotEntregada</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Cantidad total entregada de la tecnología</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>EntTotal</td>
+                    <td>1</td>
+                    <td>Numérico</td>
+                    <td>Indica si la entrega fue total (1) o parcial (0)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>CausaNoEntrega</td>
+                    <td>2</td>
+                    <td>Numérico</td>
+                    <td>Código de la causa cuando no se realiza la entrega (0 si se entregó)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>FecEntrega</td>
+                    <td>10</td>
+                    <td>Caracter</td>
+                    <td>Fecha de la entrega en formato YYYY-MM-DD</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoLote</td>
+                    <td>30</td>
+                    <td>Caracter</td>
+                    <td>Número de lote del medicamento o tecnología entregada</td>
+                    <td>Facturación</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="relaciones">
+            <strong>Relaciones:</strong><br>
+            <strong>Campos Clave:</strong> NoPrescripcion, TipoIDPaciente, NoIDPaciente, NoEntrega<br>
+            <strong>Validaciones:</strong> NoPrescripcion debe existir en MIPRES. CodSerTecEntregado debe corresponder a catálogo CUM vigente
+        </div>
+    </div>
+
+    <!-- TABLA 2: ReporteEntrega -->
+    <div class="tabla-container">
+        <div class="header">
+            <div class="header-item"><strong>Nombre de Archivo:</strong> ReporteEntrega</div>
+            <div class="header-item"><strong>Fecha de creación:</strong> 03/11/2025</div>
+            <div class="header-item" style="grid-column: 1 / -1;"><strong>Descripción:</strong> Reporte del estado de las entregas realizadas y su valoración</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tamaño</th>
+                    <th>Tipo de Dato</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>ID</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Identificador único del reporte de entrega generado por MIPRES</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>EstadoEntrega</td>
+                    <td>2</td>
+                    <td>Numérico</td>
+                    <td>Código del estado de la entrega (1: Entregado, 2: Parcial, 3: No entregado)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>CausaNoEntrega</td>
+                    <td>2</td>
+                    <td>Numérico</td>
+                    <td>Código de la causa cuando no se realiza la entrega total (0 si se entregó completamente)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>ValorEntregado</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Valor monetario de lo entregado en pesos colombianos</td>
+                    <td>Facturación</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="relaciones">
+            <strong>Relaciones:</strong><br>
+            <strong>Campos Clave:</strong> ID<br>
+            <strong>Validaciones:</strong> ID debe corresponder a una entrega previamente registrada. ValorEntregado debe ser numérico positivo
+        </div>
+    </div>
+
+    <!-- TABLA 3: Facturación -->
+    <div class="tabla-container">
+        <div class="header">
+            <div class="header-item"><strong>Nombre de Archivo:</strong> Facturacion</div>
+            <div class="header-item"><strong>Fecha de creación:</strong> 03/11/2025</div>
+            <div class="header-item" style="grid-column: 1 / -1;"><strong>Descripción:</strong> Información detallada de facturación de suministros entregados para cobro a las EPS</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Campo</th>
+                    <th>Tamaño</th>
+                    <th>Tipo de Dato</th>
+                    <th>Descripción</th>
+                    <th>Responsable</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>NoPrescripcion</td>
+                    <td>50</td>
+                    <td>Caracter</td>
+                    <td>Número único de prescripción asignado por MIPRES</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>TipoTec</td>
+                    <td>2</td>
+                    <td>Caracter</td>
+                    <td>Tipo de tecnología en salud (medicamento, dispositivo, procedimiento, servicio complementario)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>ConTec</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Consecutivo de la tecnología dentro de la prescripción</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>TipoIDPaciente</td>
+                    <td>2</td>
+                    <td>Caracter</td>
+                    <td>Tipo de identificación del paciente (CC, TI, RC, CE, PA, MS, AS)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoIDPaciente</td>
+                    <td>20</td>
+                    <td>Caracter</td>
+                    <td>Número de identificación del paciente</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoEntrega</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Número consecutivo de la entrega</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoSubEntrega</td>
+                    <td>10</td>
+                    <td>Numérico</td>
+                    <td>Número consecutivo de la sub-entrega (para entregas parciales)</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>NoFactura</td>
+                    <td>50</td>
+                    <td>Caracter</td>
+                    <td>Número de factura electrónica o CUFE (Código Único de Facturación Electrónica)</td>
+                    <td>Sistemas</td>
+                </tr>
+                <tr>
+                    <td>NoIDEPS</td>
+                    <td>20</td>
+                    <td>Caracter</td>
+                    <td>Número de identificación de la EPS</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>CodEPS</td>
+                    <td>10</td>
+                    <td>Caracter</td>
+                    <td>Código único de la EPS según catálogo del Ministerio de Salud</td>
+                    <td>Sistemas</td>
+                </tr>
+                <tr>
+                    <td>CodSerTecAEntregado</td>
+                    <td>20</td>
+                    <td>Caracter</td>
+                    <td>Código CUM del medicamento o servicio/tecnología entregado</td>
+                    <td>Sistemas</td>
+                </tr>
+                <tr>
+                    <td>CantUnMinDis</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Cantidad en unidad mínima dispensable</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>ValorUnitFacturado</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Valor unitario facturado del producto o servicio en pesos colombianos</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>ValorTotFacturado</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Valor total facturado (cantidad x valor unitario) en pesos colombianos</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>CuotaModer</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Valor de cuota moderadora aplicada al paciente</td>
+                    <td>Facturación</td>
+                </tr>
+                <tr>
+                    <td>Copago</td>
+                    <td>15</td>
+                    <td>Caracter</td>
+                    <td>Valor de copago aplicado al paciente</td>
+                    <td>Facturación</td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="relaciones">
+            <strong>Relaciones:</strong><br>
+            <strong>Campos Clave:</strong> NoPrescripcion, NoFactura, CodEPS<br>
+            <strong>Validaciones:</strong> NoFactura (CUFE) debe ser único y válido. CodEPS debe existir en catálogo oficial. ValorTotFacturado = CantUnMinDis x ValorUnitFacturado
+        </div>
+    </div>
+
+    <!-- TABLA RESUMEN DE RESPONSABILIDADES -->
+    <div class="tabla-container">
+        <div class="header">
+            <div class="header-item"><strong>Nombre:</strong> Matriz de Responsabilidades</div>
+            <div class="header-item"><strong>Fecha de creación:</strong> 03/11/2025</div>
+            <div class="header-item" style="grid-column: 1 / -1;"><strong>Descripción:</strong> Define los campos administrados por cada departamento</div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Departamento</th>
+                    <th>Campos Asignados</th>
+                    <th>Descripción de Responsabilidad</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Departamento de Sistemas</strong></td>
+                    <td>
+                        • CodEPS<br>
+                        • CodSerTecEntregado / CodSerTecAEntregado (CUM)<br>
+                        • NoFactura (CUFE)
+                    </td>
+                    <td>
+                        Suministra códigos técnicos extraídos de la base de datos institucional:
+                        códigos de EPS según catálogo oficial, códigos CUM de medicamentos
+                        y el CUFE de facturación electrónica
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Departamento de Facturación</strong></td>
+                    <td>
+                        • Todos los demás campos operativos y clínicos
+                    </td>
+                    <td>
+                        Responsable de ingresar toda la información relacionada con prescripciones,
+                        datos del paciente, entregas, cantidades, valores unitarios y totales,
+                        copagos, cuotas moderadoras y estados de entrega
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="relaciones">
+            <strong>Notas:</strong> La separación de responsabilidades busca optimizar el flujo de trabajo, reduciendo la dependencia del área de sistemas y minimizando errores de digitación en códigos técnicos mediante autocompletado automático desde la base de datos institucional.
+        </div>
+    </div>
+
+</body>
+</html>

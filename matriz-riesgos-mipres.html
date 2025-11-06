@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matriz de Riesgos - MIPRES</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+        }
+        h2 {
+            color: #34495e;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
+            padding-left: 10px;
+        }
+        .info-box {
+            background-color: #ecf0f1;
+            border-left: 5px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        th {
+            background-color: #34495e;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-size: 13px;
+            font-weight: bold;
+        }
+        td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            font-size: 12px;
+            vertical-align: top;
+        }
+        .riesgo-id {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        .critico {
+            background-color: #e74c3c;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .alto {
+            background-color: #e67e22;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .medio {
+            background-color: #f39c12;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .bajo {
+            background-color: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .dimension {
+            display: inline-block;
+            background-color: #3498db;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-right: 5px;
+        }
+        .nota-importante {
+            background-color: #fff3cd;
+            border: 2px solid #ffc107;
+            border-left: 5px solid #ff9800;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .nota-importante strong {
+            color: #e65100;
+        }
+        .leyenda {
+            background-color: white;
+            padding: 15px;
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+        }
+        .leyenda-item {
+            display: inline-block;
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        ul {
+            margin: 5px 0;
+            padding-left: 20px;
+        }
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>MATRIZ DE RIESGOS - PROYECTO MIPRES</h1>
+    
+    <div class="info-box">
+        <strong>Proyecto:</strong> Optimización del Reporte y Envío de Facturas de Suministros al Ministerio de Salud y Protección Social<br>
+        <strong>Fecha de elaboración:</strong> 03/11/2025<br>
+        <strong>Responsable:</strong> Dylan Jared Bautista Sierra<br>
+        <strong>Departamento:</strong> Sistemas - Clínica San José de Cúcuta
+    </div>
+
+    <h2>Leyenda de Clasificación de Riesgos</h2>
+    <div class="leyenda">
+        <div class="leyenda-item">
+            <span class="critico">CRÍTICO</span> - Probabilidad Alta + Impacto Alto
+        </div>
+        <div class="leyenda-item">
+            <span class="alto">ALTO</span> - Probabilidad Alta + Impacto Medio o Probabilidad Media + Impacto Alto
+        </div>
+        <div class="leyenda-item">
+            <span class="medio">MEDIO</span> - Probabilidad Media + Impacto Medio
+        </div>
+        <div class="leyenda-item">
+            <span class="bajo">BAJO</span> - Probabilidad Baja + Impacto Bajo/Medio
+        </div>
+    </div>
+
+    <h2>Dimensiones de Análisis</h2>
+    <div class="leyenda">
+        <span class="dimension">OPERATIVA</span> Errores en procesos operativos y digitación<br><br>
+        <span class="dimension">TECNOLÓGICA</span> Limitaciones técnicas y acceso a sistemas<br><br>
+        <span class="dimension">NORMATIVA</span> Incumplimiento de requisitos legales y regulatorios
+    </div>
+
+    <h2>Matriz de Riesgos Identificados</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 5%;">ID</th>
+                <th style="width: 15%;">Riesgo</th>
+                <th style="width: 8%;">Dimensión</th>
+                <th style="width: 22%;">Descripción y Consecuencias</th>
+                <th style="width: 8%;">Probabilidad</th>
+                <th style="width: 8%;">Impacto</th>
+                <th style="width: 10%;">Nivel</th>
+                <th style="width: 24%;">Plan de Mitigación</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- RIESGO 1 -->
+            <tr>
+                <td class="riesgo-id">R-01</td>
+                <td><strong>NoFactura (CUFE) Incorrecto o Faltante</strong></td>
+                <td><span class="dimension">NORMATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> El campo NoFactura debe contener el CUFE (Código Único de Facturación Electrónica), no el número de factura convencional.
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>La factura no viaja a la DIAN</li>
+                        <li>Rechazo automático por MIPRES</li>
+                        <li>Sanciones del Ministerio de Salud</li>
+                        <li>Pérdidas económicas por no cobro</li>
+                        <li>Incumplimiento normativo fiscal</li>
+                    </ul>
+                    <div class="nota-importante">
+                        <strong>⚠️ NOTA IMPORTANTE:</strong> Actualmente este campo se ingresa manualmente debido a que se requiere autorización del Ingeniero Senior para conectar la base de datos institucional y extraer automáticamente el CUFE.
+                    </div>
+                </td>
+                <td><strong>ALTA</strong><br>(Mientras no haya conexión a BD)</td>
+                <td><strong>CRÍTICO</strong></td>
+                <td><span class="critico">CRÍTICO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar el CUFE en el sistema SALUS (sistema anterior con acceso a BD)</li>
+                        <li>Verificar con el manual XLSX de Swagger proporcionado por la clínica</li>
+                        <li>Validación de formato CUFE (96 caracteres alfanuméricos)</li>
+                        <li>Consultar a los ingenieros para verificar CUFE en base de datos</li>
+                        <li>Comparar datos impresos con registros de BD</li>
+                        <li>Reportar inconsistencias al departamento de facturación</li>
+                        <li>Capacitación al personal sobre CUFE vs. No. Factura</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar extracción automática de datos desde la BD</li>
+                        <li>Autocompletar CUFE, CodEPS, CUM y ConTec automáticamente</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- RIESGO 2 -->
+            <tr>
+                <td class="riesgo-id">R-02</td>
+                <td><strong>Digitación Incorrecta de ValorUnitFacturado y ValorTotFacturado</strong></td>
+                <td><span class="dimension">OPERATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> Errores al digitar el valor unitario que afectan directamente el valor total facturado (ValorTotFacturado = CantUnMinDis × ValorUnitFacturado).
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>Sobrefacturación o subfacturación</li>
+                        <li>Glosas por parte de EPS</li>
+                        <li>Pérdidas económicas para la clínica</li>
+                        <li>Investigaciones del Ministerio de Salud</li>
+                        <li>Sanciones económicas y administrativas</li>
+                    </ul>
+                </td>
+                <td><strong>MEDIA</strong></td>
+                <td><strong>ALTO</strong></td>
+                <td><span class="alto">ALTO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar valores en el sistema SALUS (sistema anterior con acceso a BD)</li>
+                        <li>Verificar con el manual XLSX de Swagger proporcionado por la clínica</li>
+                        <li>Cálculo automático de ValorTotFacturado en la interfaz</li>
+                        <li>Realizar cálculos manuales para verificación: Cantidad × Precio</li>
+                        <li>Consultar a ingenieros para verificar valores en base de datos</li>
+                        <li>Comparar datos con registros impresos de BD</li>
+                        <li>Reportar inconsistencias al departamento de facturación</li>
+                        <li>Vista previa con resumen antes de enviar</li>
+                        <li>Doble verificación para valores atípicos</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar extracción automática de valores y tarifarios desde BD</li>
+                        <li>Validación automática contra catálogos CUM y tarifarios SOAT/ISS</li>
+                        <li>Alertas automáticas cuando valores difieren del catálogo</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- RIESGO 3 -->
+            <tr>
+                <td class="riesgo-id">R-03</td>
+                <td><strong>ValorEntregado Inconsistente con Prescripción</strong></td>
+                <td><span class="dimension">OPERATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> El valor entregado no coincide con los precios y cantidades autorizadas en la prescripción. Ejemplo: 138 ítems entregados cuando la prescripción autoriza máximo 40, cada uno con precio individual de $4,737.
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>Rechazo automático por MIPRES</li>
+                        <li>Devoluciones de facturación</li>
+                        <li>Auditorías exhaustivas del Ministerio</li>
+                        <li>Multas y sanciones económicas</li>
+                        <li>Riesgo de demandas por sobrecostos</li>
+                        <li>Pérdida de credibilidad institucional</li>
+                    </ul>
+                </td>
+                <td><strong>MEDIA</strong></td>
+                <td><strong>CRÍTICO</strong></td>
+                <td><span class="critico">CRÍTICO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar datos de prescripción en el sistema SALUS</li>
+                        <li>Verificar cantidades autorizadas con el manual XLSX de Swagger</li>
+                        <li>Validación manual contra datos de la prescripción original</li>
+                        <li>Realizar cálculos manuales: CantidadEntregada × PrecioUnitario</li>
+                        <li>Consultar a ingenieros para verificar límites en base de datos</li>
+                        <li>Comparar con límites autorizados impresos</li>
+                        <li>Alerta visual cuando la cantidad supere el máximo autorizado</li>
+                        <li>Reportar discrepancias al departamento de facturación</li>
+                        <li>Bloqueo de envío si hay inconsistencias críticas detectadas manualmente</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar validación automática contra datos de prescripción desde BD</li>
+                        <li>Cálculo y verificación automática de límites autorizados</li>
+                        <li>Trazabilidad completa de cálculos y validaciones realizadas</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- RIESGO 4 -->
+            <tr>
+                <td class="riesgo-id">R-04</td>
+                <td><strong>CantTotEntregada Diferente a Prescripción</strong></td>
+                <td><span class="dimension">OPERATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> Error de digitación al registrar cantidades mayores o menores de las autorizadas en la prescripción o factura.
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>Inconsistencias en inventario</li>
+                        <li>Rechazo de facturación</li>
+                        <li>Devoluciones por EPS</li>
+                        <li>Auditorías de control interno</li>
+                        <li>Pérdidas económicas</li>
+                    </ul>
+                </td>
+                <td><strong>MEDIA</strong></td>
+                <td><strong>MEDIO</strong></td>
+                <td><span class="medio">MEDIO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar cantidades prescritas en el sistema SALUS</li>
+                        <li>Verificar con el manual XLSX de Swagger de la clínica</li>
+                        <li>Validación numérica estricta del campo en la interfaz</li>
+                        <li>Comparación manual con cantidad prescrita original</li>
+                        <li>Consultar a ingenieros para verificar datos en base de datos</li>
+                        <li>Comparar datos impresos con registros de BD</li>
+                        <li>Alerta visual si difiere de la prescripción</li>
+                        <li>Campo de justificación obligatorio para diferencias</li>
+                        <li>Reportar inconsistencias al departamento de facturación</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar comparación automática con cantidad prescrita desde BD</li>
+                        <li>Sugerencia automática desde prescripción original</li>
+                        <li>Registro de auditoría de modificaciones</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- RIESGO 5 -->
+            <tr>
+                <td class="riesgo-id">R-05</td>
+                <td><strong>EstadoEntrega Mal Clasificado</strong></td>
+                <td><span class="dimension">OPERATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> Selección incorrecta del estado de entrega (1: Entregado, 2: Parcial, 3: No entregado) que no corresponde con la realidad operativa.
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>Inconsistencias en reportes del Ministerio</li>
+                        <li>Dificultad para seguimiento de entregas pendientes</li>
+                        <li>Confusión en auditorías internas</li>
+                        <li>Retrasos en cobros por estados incorrectos</li>
+                        <li>Indicadores operativos erróneos</li>
+                    </ul>
+                </td>
+                <td><strong>MEDIA</strong></td>
+                <td><strong>MEDIO</strong></td>
+                <td><span class="medio">MEDIO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar estado real de entregas en el sistema SALUS</li>
+                        <li>Verificar con el manual XLSX de Swagger proporcionado</li>
+                        <li>Lista desplegable con descripciones claras en la interfaz</li>
+                        <li>Validación cruzada manual con CantTotEntregada</li>
+                        <li>Consultar a ingenieros o facturación en caso de duda</li>
+                        <li>Comparar con registros físicos de entregas</li>
+                        <li>Confirmación visual antes de guardar</li>
+                        <li>Ayuda contextual con ejemplos</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar lógica automática desde BD: si cantidad = 0 → No entregado</li>
+                        <li>Si cantidad < prescrito → Parcial; Si cantidad = prescrito → Entregado</li>
+                        <li>Validación automática de consistencia</li>
+                    </ul>
+                </td>
+            </tr>
+
+            <!-- RIESGO 6 -->
+            <tr>
+                <td class="riesgo-id">R-06</td>
+                <td><strong>CausaNoEntrega Inconsistente con EntTotal</strong></td>
+                <td><span class="dimension">OPERATIVA</span></td>
+                <td>
+                    <strong>Descripción:</strong> El campo EntTotal indica si la entrega fue completa (1) o parcial (0). Si no hay entrega o es parcial, debe especificarse CausaNoEntrega, pero puede haber inconsistencias al digitar ambos campos.
+                    <br><br>
+                    <strong>Consecuencias:</strong>
+                    <ul>
+                        <li>Rechazo por validación de MIPRES</li>
+                        <li>Devoluciones de reportes</li>
+                        <li>Retrasos en procesamiento</li>
+                        <li>Confusión en trazabilidad</li>
+                        <li>Reportes estadísticos incorrectos</li>
+                    </ul>
+                </td>
+                <td><strong>BAJA</strong></td>
+                <td><strong>BAJO</strong></td>
+                <td><span class="bajo">BAJO</span></td>
+                <td>
+                    <strong>Mitigación inmediata:</strong>
+                    <ul>
+                        <li>Consultar catálogo de causas en el sistema SALUS</li>
+                        <li>Verificar con el manual XLSX de Swagger de la clínica</li>
+                        <li>Validación lógica manual antes de enviar</li>
+                        <li>Si EntTotal = 1 → Verificar que CausaNoEntrega sea 0</li>
+                        <li>Si EntTotal = 0 → Verificar que CausaNoEntrega esté seleccionada</li>
+                        <li>Consultar al departamento de facturación en caso de duda</li>
+                        <li>Lista desplegable con causas válidas del catálogo MIPRES</li>
+                        <li>Mensaje de error visual si hay inconsistencia lógica</li>
+                    </ul>
+                    <strong>Solución definitiva:</strong>
+                    <ul>
+                        <li><strong>Solicitar autorización formal al Ingeniero Senior para conexión a base de datos institucional</strong></li>
+                        <li>Implementar validación lógica automática desde BD</li>
+                        <li>Campo CausaNoEntrega se habilita/deshabilita condicionalmente</li>
+                        <li>Prevención automática de inconsistencias lógicas</li>
+                    </ul>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Resumen de Riesgos por Nivel</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nivel de Riesgo</th>
+                <th>Cantidad</th>
+                <th>Riesgos Identificados</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><span class="critico">CRÍTICO</span></td>
+                <td><strong>2</strong></td>
+                <td>R-01 (NoFactura/CUFE), R-03 (ValorEntregado inconsistente)</td>
+            </tr>
+            <tr>
+                <td><span class="alto">ALTO</span></td>
+                <td><strong>1</strong></td>
+                <td>R-02 (ValorUnitFacturado y ValorTotFacturado)</td>
+            </tr>
+            <tr>
+                <td><span class="medio">MEDIO</span></td>
+                <td><strong>2</strong></td>
+                <td>R-04 (CantTotEntregada), R-05 (EstadoEntrega)</td>
+            </tr>
+            <tr>
+                <td><span class="bajo">BAJO</span></td>
+                <td><strong>1</strong></td>
+                <td>R-06 (CausaNoEntrega inconsistente)</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <h2>Acciones Prioritarias</h2>
+    <div class="nota-importante">
+        <strong>ACCIÓN CRÍTICA #1:</strong> Solicitar autorización inmediata al Ingeniero Senior para conexión a base de datos institucional y extracción automática de CUFE, códigos EPS, CUM y ConTec. Esto es la SOLUCIÓN DEFINITIVA que elimina los riesgos más críticos del proyecto.
+    </div>
+
+    <div class="nota-importante">
+        <strong>ACCIÓN CRÍTICA #2 (Mientras tanto):</strong> Utilizar el sistema SALUS (sistema anterior de la clínica con acceso a BD) para consultar y verificar todos los datos necesarios. SALUS aún tiene conexión con la base de datos, aunque por actualización de BD y pérdida de código fuente no puede ser modificado.
+    </div>
+
+    <div class="info-box">
+        <strong>Contexto del sistema SALUS:</strong> Es el sistema anterior de la clínica que se utilizaba para estas operaciones. Actualmente mantiene conexión con la base de datos institucional, pero debido a actualizaciones en la BD y pérdida del código fuente, no puede ser reparado ni modificado. Sin embargo, sigue siendo útil como herramienta de consulta para verificar datos.
+    </div>
+
+    <div class="info-box">
+        <strong>Herramientas de soporte disponibles:</strong>
+        <ul>
+            <li><strong>Sistema SALUS:</strong> Consulta de datos con acceso directo a BD</li>
+            <li><strong>Manual XLSX de Swagger:</strong> Documento proporcionado por la clínica con instrucciones detalladas sobre cómo usar el Swagger y llenar cada campo correctamente</li>
+            <li><strong>Cálculos manuales:</strong> Verificación matemática de valores y cantidades</li>
+            <li><strong>Consulta a ingenieros:</strong> Verificación directa en base de datos para comparar datos impresos con registros actuales</li>
+            <li><strong>Departamento de facturación:</strong> Canal de reporte para inconsistencias detectadas</li>
+        </ul>
+    </div>
+
+    <div class="info-box">
+        <strong>Nota final:</strong> Esta matriz de riesgos será revisada y actualizada periódicamente durante el desarrollo e implementación del proyecto. Los planes de mitigación se ajustarán según las lecciones aprendidas y feedback del equipo de facturación.
+    </div>
+
+</body>
+</html>
