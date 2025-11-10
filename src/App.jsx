@@ -32,7 +32,7 @@ const convertDisplayDateToIso = (value) => {
   if (isoMatch) {
     return trimmed;
   }
-  const displayMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);
+  const displayMatch = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
   if (displayMatch) {
     const [, day, month, year] = displayMatch;
     return `${year.padStart(4, '0')}-${month.padStart(
@@ -132,6 +132,21 @@ const deriveErrorMessage = (payload) => {
   } catch {
     return 'Error desconocido';
   }
+};
+
+const isSuccessfulEntry = (entry) => {
+  if (!entry) {
+    return false;
+  }
+  if (typeof entry.ok === 'boolean') {
+    return entry.ok;
+  }
+  const numericStatus =
+    typeof entry.status === 'number' ? entry.status : Number(entry.status);
+  if (!Number.isFinite(numericStatus)) {
+    return false;
+  }
+  return numericStatus >= 200 && numericStatus < 300;
 };
 
 const defaultEntregaForm = {
@@ -265,13 +280,8 @@ function App() {
   const [lastEntregaRequest, setLastEntregaRequest] = useState(null);
   const [lastFacturacionRequest, setLastFacturacionRequest] = useState(null);
   const [lastEntregaResponseId, setLastEntregaResponseId] = useState(null);
-  const [lastReporteResponseId, setLastReporteResponseId] = useState(null);
-  const [lastFacturacionResponseId, setLastFacturacionResponseId] =
-    useState(null);
   const [lastEntregaResponse, setLastEntregaResponse] = useState(null);
   const [lastReporteResponse, setLastReporteResponse] = useState(null);
-  const [lastFacturacionResponse, setLastFacturacionResponse] =
-    useState(null);
   useEffect(() => {
     const storedJwt = localStorage.getItem('mipres_jwt');
     const storedToken = localStorage.getItem('mipres_token');
@@ -386,12 +396,9 @@ function App() {
     setLastEntregaId(null);
     setLastEntregaRequest(null);
     setLastEntregaResponseId(null);
-    setLastReporteResponseId(null);
     setLastFacturacionRequest(null);
-    setLastFacturacionResponseId(null);
     setLastEntregaResponse(null);
     setLastReporteResponse(null);
-    setLastFacturacionResponse(null);
     setEntregaForm({ ...defaultEntregaForm });
     setReporteForm({ ...defaultReporteForm });
     setFacturacionForm({ ...defaultFacturacionForm });
@@ -451,7 +458,18 @@ function App() {
   );
 
   const addSubmission = useCallback(
-    (type, requestBody, response, status, responseId = null) => {
+    (
+      type,
+      requestBody,
+      response,
+      status,
+      responseId = null,
+      wasSuccessful = undefined,
+    ) => {
+      const successFlag =
+        typeof wasSuccessful === 'boolean'
+          ? wasSuccessful
+          : isSuccessfulEntry({ status });
       const entry = {
         id: Date.now(),
         type,
@@ -459,6 +477,7 @@ function App() {
         response,
         status,
         responseId,
+        ok: successFlag,
         timestamp: new Date().toISOString(),
       };
       setSubmissions((prev) => [...prev, entry]);
@@ -599,14 +618,14 @@ function App() {
         ...prev,
         FecEntrega: convertIsoToDisplay(isoDeliveryDate),
       }));
-      addSubmission('EntregaAmbito', body, data, status, responseId);
+      addSubmission('EntregaAmbito', body, data, status, responseId, ok);
       addToast(
         `Entrega registrada correctamente. ID: ${
           responseId ?? 'no informado'
         }`,
       );
     } else {
-      addSubmission('EntregaAmbito', body, data, status, null);
+      addSubmission('EntregaAmbito', body, data, status, null, ok);
       const errorMessage =
         deriveErrorMessage(data) || 'Error registrando entrega';
       addToast(
@@ -668,12 +687,11 @@ function App() {
         (Array.isArray(data?.data)
           ? data?.data?.[0]?.ID
           : data?.data?.ID ?? data?.data?.Id ?? data?.data?.id) ?? null;
-      setLastReporteResponseId(responseId ?? null);
       setLastReporteResponse(data);
-      addSubmission('ReporteEntrega', body, data, status, responseId);
+      addSubmission('ReporteEntrega', body, data, status, responseId, ok);
       addToast('Reporte de entrega registrado correctamente');
     } else {
-      addSubmission('ReporteEntrega', body, data, status, null);
+      addSubmission('ReporteEntrega', body, data, status, null, ok);
       const errorMessage =
         deriveErrorMessage(data) || 'Error registrando reporte';
       addToast(
@@ -725,12 +743,10 @@ function App() {
       const responseId =
         data?.data?.ID ?? data?.data?.Id ?? data?.data?.id ?? null;
       setLastFacturacionRequest(body);
-      setLastFacturacionResponseId(responseId ?? null);
-      setLastFacturacionResponse(data);
-      addSubmission('Facturacion', body, data, status, responseId);
+      addSubmission('Facturacion', body, data, status, responseId, ok);
       addToast('Facturacion registrada correctamente');
     } else {
-      addSubmission('Facturacion', body, data, status, null);
+      addSubmission('Facturacion', body, data, status, null, ok);
       const errorMessage =
         deriveErrorMessage(data) || 'Error registrando facturacion';
       addToast(
@@ -741,30 +757,28 @@ function App() {
   };
 
   const handleDownloadReport = () => {
-    const today = new Date().toDateString();
+    const todayDate = new Date();
+    const today = todayDate.toDateString();
     const todaysSubs = submissions.filter(
       (entry) => new Date(entry.timestamp).toDateString() === today,
     );
 
-    const filteredSubs = includeSuccess
-      ? todaysSubs
-      : todaysSubs.filter((entry) => entry.status < 200 || entry.status >= 300);
+    const hasStoredData = Boolean(
+      todaysSubs.length ||
+        lastEntregaRequest ||
+        lastFacturacionRequest ||
+        lastEntregaResponse,
+    );
 
-    const hasStoredData =
-      lastEntregaRequest || lastFacturacionRequest || lastEntregaResponse;
-
-    if (!filteredSubs.length && !todaysSubs.length && !hasStoredData) {
+    if (!hasStoredData) {
       addToast('No hay registros para generar el reporte', 'warning');
       return;
     }
 
-    const orderedSearch = [...filteredSubs, ...todaysSubs].reverse();
+    const orderedSearch = [...todaysSubs].reverse();
     const findLatestSuccess = (type) =>
       orderedSearch.find(
-        (entry) =>
-          entry.type === type &&
-          entry.status >= 200 &&
-          entry.status < 300,
+        (entry) => entry.type === type && isSuccessfulEntry(entry),
       );
 
     const entregaEntry = findLatestSuccess('EntregaAmbito');
@@ -775,45 +789,49 @@ function App() {
     const facturacionRequest =
       facturacionEntry?.request ?? lastFacturacionRequest ?? null;
 
-    if (!entregaRequest && !facturacionRequest) {
-      addToast(
-        'No hay registros exitosos disponibles para generar el reporte',
-        'warning',
-      );
-      return;
-    }
+    const todaysFacturas = todaysSubs.filter(
+      (entry) => entry.type === 'Facturacion',
+    );
+    const totalFacturas = todaysFacturas.length;
+    const facturasExitosas = todaysFacturas.filter(isSuccessfulEntry).length;
+    const facturasConError = todaysFacturas.filter(
+      (entry) => !isSuccessfulEntry(entry),
+    ).length;
+
+    const summaryRequestSource =
+      todaysFacturas.length > 0
+        ? todaysFacturas[todaysFacturas.length - 1]?.request ?? null
+        : facturacionRequest;
+
+    const summary = {
+      FACTURA: sanitizeString(
+        summaryRequestSource?.NoFactura ?? facturacionRequest?.NoFactura ?? '',
+      ),
+      PACIENTE: sanitizeString(
+        summaryRequestSource?.NoIDPaciente ??
+          facturacionRequest?.NoIDPaciente ??
+          entregaRequest?.NoIDPaciente ??
+          '',
+      ),
+      FECHA:
+        getSummaryDate(
+          summaryRequestSource?.FecEntrega ?? entregaRequest?.FecEntrega ?? '',
+        ) || todayDate.toISOString().split('T')[0],
+      MIPRES: sanitizeString(
+        summaryRequestSource?.NoPrescripcion ??
+          facturacionRequest?.NoPrescripcion ??
+          entregaRequest?.NoPrescripcion ??
+          '',
+      ),
+      TOTAL_FACTURAS: totalFacturas,
+      FACTURAS_EXITOSAS: facturasExitosas,
+      FACTURAS_CON_ERROR: facturasConError,
+    };
 
     const entregaResponsePayload =
       entregaEntry?.response ?? lastEntregaResponse ?? null;
     const reporteResponsePayload =
       reporteEntry?.response ?? lastReporteResponse ?? null;
-    const facturacionResponsePayload =
-      facturacionEntry?.response ?? lastFacturacionResponse ?? null;
-
-    const summary = {
-      FACTURA: sanitizeString(
-        facturacionRequest?.NoFactura ??
-          lastFacturacionRequest?.NoFactura ??
-          '',
-      ),
-      PACIENTE: sanitizeString(
-        facturacionRequest?.NoIDPaciente ??
-          lastFacturacionRequest?.NoIDPaciente ??
-          entregaRequest?.NoIDPaciente ??
-          lastEntregaRequest?.NoIDPaciente ??
-          '',
-      ),
-      FECHA: getSummaryDate(
-        entregaRequest?.FecEntrega ?? lastEntregaRequest?.FecEntrega ?? '',
-      ),
-      MIPRES: sanitizeString(
-        facturacionRequest?.NoPrescripcion ??
-          lastFacturacionRequest?.NoPrescripcion ??
-          entregaRequest?.NoPrescripcion ??
-          lastEntregaRequest?.NoPrescripcion ??
-          '',
-      ),
-    };
 
     const entregaRecord = extractFields(
       getFirstDataRecord(entregaResponsePayload),
@@ -836,16 +854,76 @@ function App() {
       },
     );
 
-    const facturacionRecord = extractFields(
-      getFirstDataRecord(facturacionResponsePayload),
-      {
+    const buildFacturaBlock = (entry) => {
+      const requestBody = entry.request ?? {};
+      const responseRecordRaw = getFirstDataRecord(entry.response);
+      const identifiers = extractFields(responseRecordRaw, {
         Id: ['Id', 'ID'],
         IdFacturacion: ['IdFacturacion', 'IDFacturacion'],
-      },
-    );
+      });
+      const responseMessageRaw =
+        (responseRecordRaw && responseRecordRaw.Mensaje) ??
+        entry.response?.Mensaje ??
+        entry.response?.message ??
+        entry.response?.data?.Mensaje ??
+        null;
+
+      const timestampDate = new Date(entry.timestamp);
+      const fecha =
+        Number.isNaN(timestampDate.getTime())
+          ? ''
+          : timestampDate.toISOString().split('T')[0];
+      const isSuccessful = isSuccessfulEntry(entry);
+
+      return {
+        TIPO: entry.type,
+        FACTURA: sanitizeString(
+          requestBody.NoFactura ?? facturacionRequest?.NoFactura ?? '',
+        ),
+        PACIENTE: sanitizeString(
+          requestBody.NoIDPaciente ??
+            facturacionRequest?.NoIDPaciente ??
+            entregaRequest?.NoIDPaciente ??
+            '',
+        ),
+        FECHA: fecha,
+        MIPRES: sanitizeString(
+          requestBody.NoPrescripcion ??
+            facturacionRequest?.NoPrescripcion ??
+            entregaRequest?.NoPrescripcion ??
+            '',
+        ),
+        STATUS: entry.status,
+        RESULTADO: isSuccessful ? 'Exito' : 'Error',
+        MENSAJE: isSuccessful
+          ? sanitizeString(responseMessageRaw) || 'Registro exitoso'
+          : deriveErrorMessage(entry.response),
+        Id: identifiers.Id,
+        IdFacturacion: identifiers.IdFacturacion,
+        TIMESTAMP: entry.timestamp,
+      };
+    };
+
+    const facturasToInclude =
+      todaysFacturas.length > 0
+        ? includeSuccess
+          ? todaysFacturas
+          : todaysFacturas.filter((entry) => !isSuccessfulEntry(entry))
+        : [];
+
+    const facturaBlocks =
+      facturasToInclude.length > 0
+        ? facturasToInclude.map((entry) => buildFacturaBlock(entry))
+        : [
+            {
+              MENSAJE: totalFacturas
+                ? 'Sin registros que coincidan con el filtro seleccionado'
+                : 'Sin registros de facturacion en el dia',
+            },
+          ];
 
     const errorEntries = todaysSubs.filter(
-      (entry) => entry.status < 200 || entry.status >= 300,
+      (entry) => !isSuccessfulEntry(entry),
     );
     const errorRecords =
       errorEntries.length > 0
@@ -859,15 +937,12 @@ function App() {
           }))
         : [{ MENSAJE: 'Sin registros de error' }];
 
-    const outputBlocks = [
-      summary,
-      entregaRecord,
-      reporteRecord,
-      facturacionRecord,
-    ];
+    const outputBlocks = [summary, entregaRecord, reporteRecord];
 
     const payloadSections = [
       ...outputBlocks.map((block) => JSON.stringify(block, null, 2)),
+      'FACTURAS_DEL_DIA:',
+      ...facturaBlocks.map((block) => JSON.stringify(block, null, 2)),
       'ERRORES:',
       ...errorRecords.map((block) => JSON.stringify(block, null, 2)),
     ];
@@ -896,10 +971,10 @@ function App() {
     const todayCount = submissions.filter(
       (entry) => new Date(entry.timestamp).toDateString() === today,
     ).length;
-    const success = submissions.filter(
-      (entry) => entry.status >= 200 && entry.status < 300,
+    const success = submissions.filter(isSuccessfulEntry).length;
+    const errors = submissions.filter(
+      (entry) => !isSuccessfulEntry(entry),
     ).length;
-    const errors = total - success;
 
     return {
       total,
