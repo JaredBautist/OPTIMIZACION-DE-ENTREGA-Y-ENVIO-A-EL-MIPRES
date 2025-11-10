@@ -1,158 +1,14 @@
-
+﻿
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import './App.css';
 
 const API_BASE =
   import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001/api';
 
-const DEFAULT_NIT = '800012189';
-const DEFAULT_TOKEN_MASTER = '8DF6875B-EA49-48A8-B251-5947924F9824';
-const DATE_PLACEHOLDER = 'aaaa-mm-dd';
-
-const formatDateInputValue = (value) => {
-  if (!value) {
-    return '';
-  }
-  const digits = value.replace(/\D/g, '').slice(0, 8);
-  if (digits.length <= 4) {
-    return digits;
-  }
-  if (digits.length <= 6) {
-    return `${digits.slice(0, 4)}-${digits.slice(4)}`;
-  }
-  return `${digits.slice(0, 4)}-${digits.slice(4, 6)}-${digits.slice(6)}`;
-};
-
-const convertDisplayDateToIso = (value) => {
-  if (!value) {
-    return '';
-  }
-  const trimmed = value.trim();
-  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/);
-  if (isoMatch) {
-    return trimmed;
-  }
-  const displayMatch = trimmed.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{4})$/);
-  if (displayMatch) {
-    const [, day, month, year] = displayMatch;
-    return `${year.padStart(4, '0')}-${month.padStart(
-      2,
-      '0',
-    )}-${day.padStart(2, '0')}`;
-  }
-  const digits = trimmed.replace(/\D/g, '');
-  if (digits.length === 8) {
-    const year = digits.slice(0, 4);
-    const month = digits.slice(4, 6);
-    const day = digits.slice(6, 8);
-    return `${year}-${month}-${day}`;
-  }
-  return '';
-};
-
-const convertIsoToDisplay = (value) => {
-  if (!value) {
-    return '';
-  }
-  const iso = convertDisplayDateToIso(value);
-  return iso || formatDateInputValue(value);
-};
-
-const getSummaryDate = (value) => {
-  if (!value) {
-    return '';
-  }
-  const iso = convertDisplayDateToIso(value);
-  return iso || formatDateInputValue(value);
-};
-
-const sanitizeString = (value) => {
-  if (value === null || value === undefined) {
-    return '';
-  }
-  return String(value).trim();
-};
-
-const getFirstDataRecord = (payload) => {
-  if (!payload) {
-    return null;
-  }
-  const data = payload?.data ?? payload;
-  if (Array.isArray(data)) {
-    return data.length ? data[0] ?? null : null;
-  }
-  if (typeof data === 'object' && data !== null) {
-    return data;
-  }
-  return null;
-};
-
-const extractFields = (record, mapping) => {
-  const result = {};
-  Object.entries(mapping).forEach(([key, fields]) => {
-    let value = null;
-    if (record) {
-      for (const field of fields) {
-        if (
-          Object.prototype.hasOwnProperty.call(record, field) &&
-          record[field] !== undefined &&
-          record[field] !== null
-        ) {
-          value = record[field];
-          break;
-        }
-      }
-    }
-    result[key] = value ?? null;
-  });
-  return result;
-};
-
-const deriveErrorMessage = (payload) => {
-  if (payload === null || payload === undefined) {
-    return 'Error desconocido';
-  }
-  if (typeof payload === 'string') {
-    return payload;
-  }
-  if (typeof payload === 'number' || typeof payload === 'boolean') {
-    return String(payload);
-  }
-  if (payload.message) {
-    return String(payload.message);
-  }
-  if (payload.error) {
-    return String(payload.error);
-  }
-  if (payload.data) {
-    return deriveErrorMessage(payload.data);
-  }
-  try {
-    return JSON.stringify(payload);
-  } catch {
-    return 'Error desconocido';
-  }
-};
-
-const isSuccessfulEntry = (entry) => {
-  if (!entry) {
-    return false;
-  }
-  if (typeof entry.ok === 'boolean') {
-    return entry.ok;
-  }
-  const numericStatus =
-    typeof entry.status === 'number' ? entry.status : Number(entry.status);
-  if (!Number.isFinite(numericStatus)) {
-    return false;
-  }
-  return numericStatus >= 200 && numericStatus < 300;
-};
-
 const defaultEntregaForm = {
   NoPrescripcion: '',
   TipoTec: '',
-  ConTec: '1',
+  ConTec: '',
   TipoIDPaciente: '',
   NoIDPaciente: '',
   NoEntrega: '1',
@@ -174,7 +30,7 @@ const defaultReporteForm = {
 const defaultFacturacionForm = {
   NoPrescripcion: '',
   TipoTec: '',
-  ConTec: '1',
+  ConTec: '',
   TipoIDPaciente: '',
   NoIDPaciente: '',
   NoEntrega: '1',
@@ -186,8 +42,8 @@ const defaultFacturacionForm = {
   CantUnMinDis: '',
   ValorUnitFacturado: '',
   ValorTotFacturado: '',
-  CuotaModer: '0',
-  Copago: '0',
+  CuotaModer: '',
+  Copago: '',
 };
 
 function ResponsePanel({ title, response }) {
@@ -252,10 +108,7 @@ function App() {
   const [activeTab, setActiveTab] = useState('entrega');
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
-  const [tokenForm, setTokenForm] = useState({
-    nit: DEFAULT_NIT,
-    tokenMaster: DEFAULT_TOKEN_MASTER,
-  });
+  const [tokenForm, setTokenForm] = useState({ nit: '', tokenMaster: '' });
   const [entregaForm, setEntregaForm] = useState(defaultEntregaForm);
   const [reporteForm, setReporteForm] = useState(defaultReporteForm);
   const [facturacionForm, setFacturacionForm] = useState(
@@ -277,11 +130,6 @@ function App() {
   });
 
   const [toasts, setToasts] = useState([]);
-  const [lastEntregaRequest, setLastEntregaRequest] = useState(null);
-  const [lastFacturacionRequest, setLastFacturacionRequest] = useState(null);
-  const [lastEntregaResponseId, setLastEntregaResponseId] = useState(null);
-  const [lastEntregaResponse, setLastEntregaResponse] = useState(null);
-  const [lastReporteResponse, setLastReporteResponse] = useState(null);
   useEffect(() => {
     const storedJwt = localStorage.getItem('mipres_jwt');
     const storedToken = localStorage.getItem('mipres_token');
@@ -289,19 +137,6 @@ function App() {
     const storedSubs =
       JSON.parse(localStorage.getItem('mipres_submissions') || '[]') ?? [];
     const storedEntregaId = localStorage.getItem('mipres_last_entrega_id');
-    const storedNit = localStorage.getItem('mipres_last_nit');
-    const storedTokenMaster = localStorage.getItem(
-      'mipres_last_token_master',
-    );
-
-    const resolvedNit = storedNit ?? DEFAULT_NIT;
-    const resolvedTokenMaster =
-      storedTokenMaster ?? DEFAULT_TOKEN_MASTER;
-    setTokenForm((prev) =>
-      prev.nit === resolvedNit && prev.tokenMaster === resolvedTokenMaster
-        ? prev
-        : { nit: resolvedNit, tokenMaster: resolvedTokenMaster },
-    );
 
     if (storedJwt) {
       setJwt(storedJwt);
@@ -369,11 +204,6 @@ function App() {
         ...prev,
         ID: String(lastEntregaId),
       }));
-    } else {
-      setReporteForm((prev) => ({
-        ...prev,
-        ID: '',
-      }));
     }
   }, [lastEntregaId]);
   const addToast = useCallback((message, variant = 'success') => {
@@ -393,27 +223,12 @@ function App() {
     setJwt(null);
     setMipresToken(null);
     setTokenExpiry(null);
-    setLastEntregaId(null);
-    setLastEntregaRequest(null);
-    setLastEntregaResponseId(null);
-    setLastFacturacionRequest(null);
-    setLastEntregaResponse(null);
-    setLastReporteResponse(null);
-    setEntregaForm({ ...defaultEntregaForm });
-    setReporteForm({ ...defaultReporteForm });
-    setFacturacionForm({ ...defaultFacturacionForm });
-    setTokenForm({
-      nit: DEFAULT_NIT,
-      tokenMaster: DEFAULT_TOKEN_MASTER,
-    });
     setResponses({
       token: null,
       entrega: null,
       reporte: null,
       facturacion: null,
     });
-    setSubmissions([]);
-    localStorage.removeItem('mipres_submissions');
   }, []);
   const apiRequest = useCallback(
     async (path, { method = 'GET', body, useJwt = true } = {}) => {
@@ -457,33 +272,17 @@ function App() {
     [jwt, handleLogout, addToast],
   );
 
-  const addSubmission = useCallback(
-    (
+  const addSubmission = useCallback((type, requestBody, response, status) => {
+    const entry = {
+      id: Date.now(),
       type,
-      requestBody,
+      request: requestBody,
       response,
       status,
-      responseId = null,
-      wasSuccessful = undefined,
-    ) => {
-      const successFlag =
-        typeof wasSuccessful === 'boolean'
-          ? wasSuccessful
-          : isSuccessfulEntry({ status });
-      const entry = {
-        id: Date.now(),
-        type,
-        request: requestBody,
-        response,
-        status,
-        responseId,
-        ok: successFlag,
-        timestamp: new Date().toISOString(),
-      };
-      setSubmissions((prev) => [...prev, entry]);
-    },
-    [],
-  );
+      timestamp: new Date().toISOString(),
+    };
+    setSubmissions((prev) => [...prev, entry]);
+  }, []);
   const handleLogin = async (event) => {
     event.preventDefault();
     if (!loginForm.username || !loginForm.password) {
@@ -546,12 +345,8 @@ function App() {
       setMipresToken(extracted);
       const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
       setTokenExpiry(expiry);
-      localStorage.setItem('mipres_last_nit', tokenForm.nit.trim());
-      localStorage.setItem(
-        'mipres_last_token_master',
-        tokenForm.tokenMaster.trim(),
-      );
       addToast('Token diario generado correctamente');
+      setTokenForm({ nit: '', tokenMaster: '' });
     } else {
       addToast(data?.message || 'No se pudo generar token', 'danger');
     }
@@ -563,18 +358,12 @@ function App() {
       return;
     }
 
-    const isoDeliveryDate = convertDisplayDateToIso(entregaForm.FecEntrega);
-    if (!isoDeliveryDate || Number.isNaN(Date.parse(isoDeliveryDate))) {
-      addToast('Fecha de entrega invalida. Usa el formato dd/mm/aaaa.', 'danger');
-      return;
-    }
-
     const body = {
       mipresToken,
       ambito: true,
       NoPrescripcion: entregaForm.NoPrescripcion.trim(),
       TipoTec: entregaForm.TipoTec.trim(),
-      ConTec: 1,
+      ConTec: Number(entregaForm.ConTec || 0),
       TipoIDPaciente: entregaForm.TipoIDPaciente.trim(),
       NoIDPaciente: entregaForm.NoIDPaciente.trim(),
       NoEntrega: Number(entregaForm.NoEntrega || 0),
@@ -582,7 +371,7 @@ function App() {
       CantTotEntregada: entregaForm.CantTotEntregada.trim(),
       EntTotal: Number(entregaForm.EntTotal || 0),
       CausaNoEntrega: Number(entregaForm.CausaNoEntrega || 0),
-      FecEntrega: isoDeliveryDate,
+      FecEntrega: entregaForm.FecEntrega,
       NoLote: entregaForm.NoLote.trim(),
     };
 
@@ -599,39 +388,12 @@ function App() {
     }));
 
     if (ok) {
-      const responseId =
-        (Array.isArray(data?.data)
-          ? data?.data?.[0]?.ID
-          : data?.data?.ID ?? data?.data?.Id ?? data?.data?.id) ?? null;
-      const normalizedId =
-        responseId !== null &&
-        responseId !== undefined &&
-        responseId !== '' &&
-        !Number.isNaN(Number(responseId))
-          ? Number(responseId)
-          : null;
-      setLastEntregaId(normalizedId);
-      setLastEntregaResponseId(responseId ?? null);
-      setLastEntregaRequest(body);
-      setLastEntregaResponse(data);
-      setEntregaForm((prev) => ({
-        ...prev,
-        FecEntrega: convertIsoToDisplay(isoDeliveryDate),
-      }));
-      addSubmission('EntregaAmbito', body, data, status, responseId, ok);
-      addToast(
-        `Entrega registrada correctamente. ID: ${
-          responseId ?? 'no informado'
-        }`,
-      );
+      const id = data?.data?.ID ?? Date.now();
+      setLastEntregaId(id);
+      addSubmission('EntregaAmbito', body, data, status);
+      addToast(`Entrega registrada correctamente. ID: ${id}`);
     } else {
-      addSubmission('EntregaAmbito', body, data, status, null, ok);
-      const errorMessage =
-        deriveErrorMessage(data) || 'Error registrando entrega';
-      addToast(
-        `${errorMessage} (HTTP ${status || 'sin respuesta'})`,
-        'danger',
-      );
+      addToast(data?.message || 'Error registrando entrega', 'danger');
     }
   };
 
@@ -642,29 +404,9 @@ function App() {
       return;
     }
 
-    const rawId =
-      (reporteForm.ID ?? '').toString().trim() ||
-      (lastEntregaResponseId !== null && lastEntregaResponseId !== undefined
-        ? String(lastEntregaResponseId)
-        : '');
-    const effectiveId = Number(rawId);
-
-    if (!rawId || Number.isNaN(effectiveId) || effectiveId <= 0) {
-      addToast(
-        'Ingrese un ID de entrega valido o registre una entrega antes de reportar.',
-        'danger',
-      );
-      return;
-    }
-
-    setReporteForm((prev) => ({
-      ...prev,
-      ID: String(effectiveId),
-    }));
-
     const body = {
       mipresToken,
-      ID: effectiveId,
+      ID: Number(reporteForm.ID || 0),
       EstadoEntrega: Number(reporteForm.EstadoEntrega || 0),
       CausaNoEntrega: Number(reporteForm.CausaNoEntrega || 0),
       ValorEntregado: reporteForm.ValorEntregado.trim(),
@@ -683,21 +425,10 @@ function App() {
     }));
 
     if (ok) {
-      const responseId =
-        (Array.isArray(data?.data)
-          ? data?.data?.[0]?.ID
-          : data?.data?.ID ?? data?.data?.Id ?? data?.data?.id) ?? null;
-      setLastReporteResponse(data);
-      addSubmission('ReporteEntrega', body, data, status, responseId, ok);
+      addSubmission('ReporteEntrega', body, data, status);
       addToast('Reporte de entrega registrado correctamente');
     } else {
-      addSubmission('ReporteEntrega', body, data, status, null, ok);
-      const errorMessage =
-        deriveErrorMessage(data) || 'Error registrando reporte';
-      addToast(
-        `${errorMessage} (HTTP ${status || 'sin respuesta'})`,
-        'danger',
-      );
+      addToast(data?.message || 'Error registrando reporte', 'danger');
     }
   };
   const handleFacturacionSubmit = async (event) => {
@@ -711,7 +442,7 @@ function App() {
       mipresToken,
       NoPrescripcion: facturacionForm.NoPrescripcion.trim(),
       TipoTec: facturacionForm.TipoTec.trim(),
-      ConTec: 1,
+      ConTec: Number(facturacionForm.ConTec || 0),
       TipoIDPaciente: facturacionForm.TipoIDPaciente.trim(),
       NoIDPaciente: facturacionForm.NoIDPaciente.trim(),
       NoEntrega: Number(facturacionForm.NoEntrega || 0),
@@ -723,8 +454,8 @@ function App() {
       CantUnMinDis: facturacionForm.CantUnMinDis.trim(),
       ValorUnitFacturado: facturacionForm.ValorUnitFacturado.trim(),
       ValorTotFacturado: facturacionForm.ValorTotFacturado.trim(),
-      CuotaModer: '0',
-      Copago: '0',
+      CuotaModer: facturacionForm.CuotaModer.trim(),
+      Copago: facturacionForm.Copago.trim(),
     };
 
     setLoading((prev) => ({ ...prev, facturacion: true }));
@@ -740,214 +471,31 @@ function App() {
     }));
 
     if (ok) {
-      const responseId =
-        data?.data?.ID ?? data?.data?.Id ?? data?.data?.id ?? null;
-      setLastFacturacionRequest(body);
-      addSubmission('Facturacion', body, data, status, responseId, ok);
+      addSubmission('Facturacion', body, data, status);
       addToast('Facturacion registrada correctamente');
     } else {
-      addSubmission('Facturacion', body, data, status, null, ok);
-      const errorMessage =
-        deriveErrorMessage(data) || 'Error registrando facturacion';
-      addToast(
-        `${errorMessage} (HTTP ${status || 'sin respuesta'})`,
-        'danger',
-      );
+      addToast(data?.message || 'Error registrando facturacion', 'danger');
     }
   };
 
   const handleDownloadReport = () => {
-    const todayDate = new Date();
-    const today = todayDate.toDateString();
-    const todaysSubs = submissions.filter(
+    const today = new Date().toDateString();
+    let todaySubs = submissions.filter(
       (entry) => new Date(entry.timestamp).toDateString() === today,
     );
 
-    const hasStoredData = Boolean(
-      todaysSubs.length ||
-        lastEntregaRequest ||
-        lastFacturacionRequest ||
-        lastEntregaResponse,
-    );
+    if (!includeSuccess) {
+      todaySubs = todaySubs.filter(
+        (entry) => entry.status < 200 || entry.status >= 300,
+      );
+    }
 
-    if (!hasStoredData) {
+    if (!todaySubs.length) {
       addToast('No hay registros para generar el reporte', 'warning');
       return;
     }
 
-    const orderedSearch = [...todaysSubs].reverse();
-    const findLatestSuccess = (type) =>
-      orderedSearch.find(
-        (entry) => entry.type === type && isSuccessfulEntry(entry),
-      );
-
-    const entregaEntry = findLatestSuccess('EntregaAmbito');
-    const reporteEntry = findLatestSuccess('ReporteEntrega');
-    const facturacionEntry = findLatestSuccess('Facturacion');
-
-    const entregaRequest = entregaEntry?.request ?? lastEntregaRequest ?? null;
-    const facturacionRequest =
-      facturacionEntry?.request ?? lastFacturacionRequest ?? null;
-
-    const todaysFacturas = todaysSubs.filter(
-      (entry) => entry.type === 'Facturacion',
-    );
-    const totalFacturas = todaysFacturas.length;
-    const facturasExitosas = todaysFacturas.filter(isSuccessfulEntry).length;
-    const facturasConError = todaysFacturas.filter(
-      (entry) => !isSuccessfulEntry(entry),
-    ).length;
-
-    const summaryRequestSource =
-      todaysFacturas.length > 0
-        ? todaysFacturas[todaysFacturas.length - 1]?.request ?? null
-        : facturacionRequest;
-
-    const summary = {
-      FACTURA: sanitizeString(
-        summaryRequestSource?.NoFactura ?? facturacionRequest?.NoFactura ?? '',
-      ),
-      PACIENTE: sanitizeString(
-        summaryRequestSource?.NoIDPaciente ??
-          facturacionRequest?.NoIDPaciente ??
-          entregaRequest?.NoIDPaciente ??
-          '',
-      ),
-      FECHA:
-        getSummaryDate(
-          summaryRequestSource?.FecEntrega ?? entregaRequest?.FecEntrega ?? '',
-        ) || todayDate.toISOString().split('T')[0],
-      MIPRES: sanitizeString(
-        summaryRequestSource?.NoPrescripcion ??
-          facturacionRequest?.NoPrescripcion ??
-          entregaRequest?.NoPrescripcion ??
-          '',
-      ),
-      TOTAL_FACTURAS: totalFacturas,
-      FACTURAS_EXITOSAS: facturasExitosas,
-      FACTURAS_CON_ERROR: facturasConError,
-    };
-
-    const entregaResponsePayload =
-      entregaEntry?.response ?? lastEntregaResponse ?? null;
-    const reporteResponsePayload =
-      reporteEntry?.response ?? lastReporteResponse ?? null;
-
-    const entregaRecord = extractFields(
-      getFirstDataRecord(entregaResponsePayload),
-      {
-        Id: ['Id', 'ID'],
-        IdEntrega: [
-          'IdEntrega',
-          'IDEntrega',
-          'IdEntregaAmbito',
-          'IDEntregaAmbito',
-        ],
-      },
-    );
-
-    const reporteRecord = extractFields(
-      getFirstDataRecord(reporteResponsePayload),
-      {
-        Id: ['Id', 'ID'],
-        IdReporteEntrega: ['IdReporteEntrega', 'IDReporteEntrega'],
-      },
-    );
-
-    const buildFacturaBlock = (entry) => {
-      const requestBody = entry.request ?? {};
-      const responseRecordRaw = getFirstDataRecord(entry.response);
-      const identifiers = extractFields(responseRecordRaw, {
-        Id: ['Id', 'ID'],
-        IdFacturacion: ['IdFacturacion', 'IDFacturacion'],
-      });
-      const responseMessageRaw =
-        (responseRecordRaw && responseRecordRaw.Mensaje) ??
-        entry.response?.Mensaje ??
-        entry.response?.message ??
-        entry.response?.data?.Mensaje ??
-        null;
-
-      const timestampDate = new Date(entry.timestamp);
-      const fecha =
-        Number.isNaN(timestampDate.getTime())
-          ? ''
-          : timestampDate.toISOString().split('T')[0];
-      const isSuccessful = isSuccessfulEntry(entry);
-
-      return {
-        TIPO: entry.type,
-        FACTURA: sanitizeString(
-          requestBody.NoFactura ?? facturacionRequest?.NoFactura ?? '',
-        ),
-        PACIENTE: sanitizeString(
-          requestBody.NoIDPaciente ??
-            facturacionRequest?.NoIDPaciente ??
-            entregaRequest?.NoIDPaciente ??
-            '',
-        ),
-        FECHA: fecha,
-        MIPRES: sanitizeString(
-          requestBody.NoPrescripcion ??
-            facturacionRequest?.NoPrescripcion ??
-            entregaRequest?.NoPrescripcion ??
-            '',
-        ),
-        STATUS: entry.status,
-        RESULTADO: isSuccessful ? 'Exito' : 'Error',
-        MENSAJE: isSuccessful
-          ? sanitizeString(responseMessageRaw) || 'Registro exitoso'
-          : deriveErrorMessage(entry.response),
-        Id: identifiers.Id,
-        IdFacturacion: identifiers.IdFacturacion,
-        TIMESTAMP: entry.timestamp,
-      };
-    };
-
-    const facturasToInclude =
-      todaysFacturas.length > 0
-        ? includeSuccess
-          ? todaysFacturas
-          : todaysFacturas.filter((entry) => !isSuccessfulEntry(entry))
-        : [];
-
-    const facturaBlocks =
-      facturasToInclude.length > 0
-        ? facturasToInclude.map((entry) => buildFacturaBlock(entry))
-        : [
-            {
-              MENSAJE: totalFacturas
-                ? 'Sin registros que coincidan con el filtro seleccionado'
-                : 'Sin registros de facturacion en el dia',
-            },
-          ];
-
-    const errorEntries = todaysSubs.filter(
-      (entry) => !isSuccessfulEntry(entry),
-    );
-    const errorRecords =
-      errorEntries.length > 0
-        ? errorEntries.map((entry) => ({
-            TIPO: entry.type,
-            STATUS: entry.status,
-            MENSAJE: deriveErrorMessage(entry.response),
-            REQUEST: entry.request,
-            RESPUESTA: entry.response,
-            TIMESTAMP: entry.timestamp,
-          }))
-        : [{ MENSAJE: 'Sin registros de error' }];
-
-    const outputBlocks = [summary, entregaRecord, reporteRecord];
-
-    const payloadSections = [
-      ...outputBlocks.map((block) => JSON.stringify(block, null, 2)),
-      'FACTURAS_DEL_DIA:',
-      ...facturaBlocks.map((block) => JSON.stringify(block, null, 2)),
-      'ERRORES:',
-      ...errorRecords.map((block) => JSON.stringify(block, null, 2)),
-    ];
-
-    const payload = payloadSections.join('\n\n');
+    const payload = JSON.stringify(todaySubs, null, 2);
     const blob = new Blob([payload], {
       type: 'application/json;charset=utf-8',
     });
@@ -971,10 +519,10 @@ function App() {
     const todayCount = submissions.filter(
       (entry) => new Date(entry.timestamp).toDateString() === today,
     ).length;
-    const success = submissions.filter(isSuccessfulEntry).length;
-    const errors = submissions.filter(
-      (entry) => !isSuccessfulEntry(entry),
+    const success = submissions.filter(
+      (entry) => entry.status >= 200 && entry.status < 300,
     ).length;
+    const errors = total - success;
 
     return {
       total,
@@ -1214,19 +762,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={entregaForm.NoPrescripcion}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setEntregaForm((prev) =>
-                                prev.NoPrescripcion === value
-                                  ? prev
-                                  : { ...prev, NoPrescripcion: value },
-                              );
-                              setFacturacionForm((prev) =>
-                                prev.NoPrescripcion === value
-                                  ? prev
-                                  : { ...prev, NoPrescripcion: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                NoPrescripcion: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1236,29 +777,28 @@ function App() {
                             type="text"
                             className="form-control"
                             value={entregaForm.TipoTec}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setEntregaForm((prev) =>
-                                prev.TipoTec === value
-                                  ? prev
-                                  : { ...prev, TipoTec: value },
-                              );
-                              setFacturacionForm((prev) =>
-                                prev.TipoTec === value
-                                  ? prev
-                                  : { ...prev, TipoTec: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                TipoTec: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
                         <div className="col-md-6">
-                          <label className="form-label">Consecutivo</label>
+                          <label className="form-label">Contec</label>
                           <input
                             type="number"
                             className="form-control"
-                            value="1"
-                            readOnly
+                            value={entregaForm.ConTec}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                ConTec: event.target.value,
+                              }))
+                            }
+                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -1269,19 +809,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={entregaForm.TipoIDPaciente}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setEntregaForm((prev) =>
-                                prev.TipoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, TipoIDPaciente: value },
-                              );
-                              setFacturacionForm((prev) =>
-                                prev.TipoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, TipoIDPaciente: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                TipoIDPaciente: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1293,19 +826,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={entregaForm.NoIDPaciente}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setEntregaForm((prev) =>
-                                prev.NoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, NoIDPaciente: value },
-                              );
-                              setFacturacionForm((prev) =>
-                                prev.NoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, NoIDPaciente: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                NoIDPaciente: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1315,19 +841,12 @@ function App() {
                             type="number"
                             className="form-control"
                             value={entregaForm.NoEntrega}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setEntregaForm((prev) =>
-                                prev.NoEntrega === value
-                                  ? prev
-                                  : { ...prev, NoEntrega: value },
-                              );
-                              setFacturacionForm((prev) =>
-                                prev.NoEntrega === value
-                                  ? prev
-                                  : { ...prev, NoEntrega: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setEntregaForm((prev) => ({
+                                ...prev,
+                                NoEntrega: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1400,17 +919,13 @@ function App() {
                         <div className="col-md-6">
                           <label className="form-label">Fecha Entrega</label>
                           <input
-                            type="text"
-                            inputMode="numeric"
+                            type="date"
                             className="form-control"
-                            placeholder={DATE_PLACEHOLDER}
                             value={entregaForm.FecEntrega}
                             onChange={(event) =>
                               setEntregaForm((prev) => ({
                                 ...prev,
-                                FecEntrega: formatDateInputValue(
-                                  event.target.value,
-                                ),
+                                FecEntrega: event.target.value,
                               }))
                             }
                             required
@@ -1469,7 +984,7 @@ function App() {
                                 ID: event.target.value,
                               }))
                             }
-                            placeholder="Se asignara automaticamente"
+                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -1556,19 +1071,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.NoPrescripcion}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setFacturacionForm((prev) =>
-                                prev.NoPrescripcion === value
-                                  ? prev
-                                  : { ...prev, NoPrescripcion: value },
-                              );
-                              setEntregaForm((prev) =>
-                                prev.NoPrescripcion === value
-                                  ? prev
-                                  : { ...prev, NoPrescripcion: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                NoPrescripcion: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1578,19 +1086,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.TipoTec}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setFacturacionForm((prev) =>
-                                prev.TipoTec === value
-                                  ? prev
-                                  : { ...prev, TipoTec: value },
-                              );
-                              setEntregaForm((prev) =>
-                                prev.TipoTec === value
-                                  ? prev
-                                  : { ...prev, TipoTec: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                TipoTec: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1599,8 +1100,14 @@ function App() {
                           <input
                             type="number"
                             className="form-control"
-                            value="1"
-                            readOnly
+                            value={facturacionForm.ConTec}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                ConTec: event.target.value,
+                              }))
+                            }
+                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -1611,19 +1118,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.TipoIDPaciente}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setFacturacionForm((prev) =>
-                                prev.TipoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, TipoIDPaciente: value },
-                              );
-                              setEntregaForm((prev) =>
-                                prev.TipoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, TipoIDPaciente: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                TipoIDPaciente: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1635,19 +1135,12 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.NoIDPaciente}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setFacturacionForm((prev) =>
-                                prev.NoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, NoIDPaciente: value },
-                              );
-                              setEntregaForm((prev) =>
-                                prev.NoIDPaciente === value
-                                  ? prev
-                                  : { ...prev, NoIDPaciente: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                NoIDPaciente: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1657,19 +1150,12 @@ function App() {
                             type="number"
                             className="form-control"
                             value={facturacionForm.NoEntrega}
-                            onChange={(event) => {
-                              const value = event.target.value;
-                              setFacturacionForm((prev) =>
-                                prev.NoEntrega === value
-                                  ? prev
-                                  : { ...prev, NoEntrega: value },
-                              );
-                              setEntregaForm((prev) =>
-                                prev.NoEntrega === value
-                                  ? prev
-                                  : { ...prev, NoEntrega: value },
-                              );
-                            }}
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                NoEntrega: event.target.value,
+                              }))
+                            }
                             required
                           />
                         </div>
@@ -1809,7 +1295,13 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.CuotaModer}
-                            readOnly
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                CuotaModer: event.target.value,
+                              }))
+                            }
+                            required
                           />
                         </div>
                         <div className="col-md-6">
@@ -1818,7 +1310,13 @@ function App() {
                             type="text"
                             className="form-control"
                             value={facturacionForm.Copago}
-                            readOnly
+                            onChange={(event) =>
+                              setFacturacionForm((prev) => ({
+                                ...prev,
+                                Copago: event.target.value,
+                              }))
+                            }
+                            required
                           />
                         </div>
                         <div className="col-12 text-end">
