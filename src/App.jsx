@@ -54,6 +54,54 @@ const EPS_CODE_MAP = EPS_OPTIONS.reduce((acc, option) => {
   return acc;
 }, {});
 
+const CAUSA_NO_ENTREGA_OPTIONS = [
+  { value: '0', label: '0 - Sin causa / No aplica' },
+  { value: '1', label: '1 - Misma solicitud en otra prescripcion' },
+  {
+    value: '2',
+    label: '2 - Existe evidencia de interaccion o reaccion medicamentosa',
+  },
+  {
+    value: '3',
+    label:
+      '3 - La indicacion de uso del medicamento no esta aprobada por el INVIMA',
+  },
+  { value: '4', label: '4 - Presentacion no fraccionable' },
+  { value: '5', label: '5 - Suministro por tutela' },
+  { value: '6', label: '6 - Paciente corresponde a otra EPS' },
+  { value: '7', label: '7 - No fue posible contactar al paciente' },
+  { value: '8', label: '8 - Paciente fallecido' },
+  { value: '9', label: '9 - Paciente se niega a recibir el suministro' },
+  {
+    value: '10',
+    label:
+      '10 - No se han agotado los topes o su prescripcion corresponde a los condicionamientos de cobertura del PBS',
+  },
+  {
+    value: '11',
+    label: '11 - La prescripcion excede la dosis maxima recomendada',
+  },
+  {
+    value: '12',
+    label:
+      '12 - La prescripcion excede los tres meses tratandose de una formulacion de primera vez',
+  },
+  {
+    value: '13',
+    label:
+      '13 - La prescripcion excede el año y no esta formulada como sucesiva',
+  },
+  { value: '14', label: '14 - El INVIMA no aprobo el MVND' },
+  { value: '15', label: '15 - El paciente tiene suministro de otra prescripcion' },
+  { value: '16', label: '16 - El prescriptor y el paciente son el mismo' },
+  { value: '17', label: '17 - Tecnologia incluida en el PBS' },
+  { value: '18', label: '18 - Exclusion del Plan de Beneficios en Salud' },
+  {
+    value: '19',
+    label: '19 - Tecnologia cubierta por otro Plan Adicional en Salud',
+  },
+];
+
 const entregaToFacturacionFieldMap = {
   NoPrescripcion: 'NoPrescripcion',
   TipoTec: 'TipoTec',
@@ -1528,9 +1576,8 @@ function App() {
                           <label className="form-label">
                             Causa No Entrega
                           </label>
-                          <input
-                            type="number"
-                            className="form-control"
+                          <select
+                            className="form-select"
                             value={entregaForm.CausaNoEntrega}
                             onChange={(event) =>
                               setEntregaForm((prev) => ({
@@ -1539,7 +1586,13 @@ function App() {
                               }))
                             }
                             required
-                          />
+                          >
+                            {CAUSA_NO_ENTREGA_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="col-md-6">
                           <label className="form-label">Fecha Entrega</label>
@@ -1636,9 +1689,8 @@ function App() {
                           <label className="form-label">
                             Causa No Entrega
                           </label>
-                          <input
-                            type="number"
-                            className="form-control"
+                          <select
+                            className="form-select"
                             value={reporteForm.CausaNoEntrega}
                             onChange={(event) =>
                               setReporteForm((prev) => ({
@@ -1647,7 +1699,13 @@ function App() {
                               }))
                             }
                             required
-                          />
+                          >
+                            {CAUSA_NO_ENTREGA_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </select>
                         </div>
                         <div className="col-md-6">
                           <label className="form-label">Valor Entregado</label>
