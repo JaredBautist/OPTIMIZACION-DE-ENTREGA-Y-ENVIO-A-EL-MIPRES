@@ -419,6 +419,9 @@ function App() {
   const [submissions, setSubmissions] = useState([]);
   const [includeSuccess, setIncludeSuccess] = useState(true);
   const [activeTab, setActiveTab] = useState('entrega');
+  const [facturaOriginal, setFacturaOriginal] = useState(null);
+  const [facturaCufe, setFacturaCufe] = useState(null);
+  const [cufeLoading, setCufeLoading] = useState(false);
 
   const [loginForm, setLoginForm] = useState({ username: '', password: '' });
   const [tokenForm, setTokenForm] = useState({
@@ -698,6 +701,41 @@ function App() {
     },
     [],
   );
+
+  const triggerCufeLookup = useCallback(async () => {
+    const numero = facturacionForm.NoFactura.trim();
+    if (!numero) {
+      addToast('Ingresa el numero de factura para consultar CUFE', 'warning');
+      return;
+    }
+    setCufeLoading(true);
+    const { ok, status, data } = await apiRequest('/mipres/cufe', {
+      method: 'POST',
+      body: { NoFactura: numero },
+    });
+    setCufeLoading(false);
+
+    const cufeValue =
+      data?.data?.cufe ??
+      data?.data?.CUFE ??
+      data?.cufe ??
+      data?.CUFE ??
+      null;
+
+    if (ok && cufeValue) {
+      setFacturaOriginal(numero);
+      setFacturaCufe(cufeValue);
+      setFacturacionForm((prev) => ({ ...prev, NoFactura: cufeValue }));
+      addToast('CUFE consultado y aplicado');
+    } else {
+      addToast(
+        data?.message ||
+          data?.error ||
+          `No fue posible consultar el CUFE (HTTP ${status || 'n/d'})`,
+        'danger',
+      );
+    }
+  }, [apiRequest, facturacionForm.NoFactura, addToast]);
   const handleLogin = async (event) => {
     event.preventDefault();
     if (!loginForm.username || !loginForm.password) {
@@ -1065,79 +1103,28 @@ function App() {
         })
       : { MENSAJE: 'Sin registros de facturacion exitosos en el dia' };
 
-    const buildFacturaBlock = (entry) => {
-      const requestBody = entry.request ?? {};
-      const responseRecordRaw = getFirstDataRecord(entry.response);
-      const identifiers = extractFields(responseRecordRaw, {
-        Id: ['Id', 'ID'],
-        IdFacturacion: ['IdFacturacion', 'IDFacturacion'],
-      });
-      const responseMessageRaw =
-        (responseRecordRaw && responseRecordRaw.Mensaje) ??
-        entry.response?.Mensaje ??
-        entry.response?.message ??
-        entry.response?.data?.Mensaje ??
-        null;
-
-      const timestampDate = new Date(entry.timestamp);
-      const fecha =
-        Number.isNaN(timestampDate.getTime())
-          ? ''
-          : timestampDate.toISOString().split('T')[0];
-      const successFlag = isSuccessfulEntry(entry);
-
-      return {
-        TIPO: entry.type,
-        FACTURA: sanitizeString(requestBody.NoFactura ?? ''),
-        PACIENTE: sanitizeString(
-          requestBody.NoIDPaciente ?? entregaRequest?.NoIDPaciente ?? '',
-        ),
-        FECHA: fecha,
-        MIPRES: sanitizeString(
-          requestBody.NoPrescripcion ??
-            entregaRequest?.NoPrescripcion ??
-            '',
-        ),
-        STATUS: entry.status,
-        RESULTADO: successFlag ? 'Exito' : 'Error',
-        MENSAJE: successFlag
-          ? sanitizeString(responseMessageRaw) || 'Registro exitoso'
-          : deriveErrorMessage(entry.response),
-        Id: identifiers.Id,
-        IdFacturacion: identifiers.IdFacturacion,
-        TIMESTAMP: entry.timestamp,
-      };
-    };
-
-    const facturasToInclude =
-      todaysFacturas.length > 0
-        ? includeSuccess
-          ? todaysFacturas
-          : todaysFacturas.filter((entry) => !isSuccessfulEntry(entry))
-        : [];
-
     const facturasBlockSummary = {
       TOTAL_FACTURAS: totalFacturas,
       FACTURAS_EXITOSAS: facturasExitosas,
       FACTURAS_CON_ERROR: facturasConError,
     };
-    const facturaBlocks =
-      facturasToInclude.length > 0
-        ? facturasToInclude.map((entry) => buildFacturaBlock(entry))
-        : [];
-
     const errorEntries = todaysEnvios.filter(
       (entry) => !isSuccessfulEntry(entry),
     );
     const errorRecords =
       errorEntries.length > 0
         ? errorEntries.map((entry) => ({
-            TIPO: entry.type,
-            STATUS: entry.status,
-            MENSAJE: deriveErrorMessage(entry.response),
-            REQUEST: entry.request,
-            RESPUESTA: entry.response,
-            TIMESTAMP: entry.timestamp,
+            RESPUESTA: {
+              'TIPO DE FORMULARIO': entry.type,
+              NoPrescripcion: entry.request?.NoPrescripcion ?? null,
+              NoFactura: entry.request?.NoFactura ?? null,
+              success:
+                entry.response?.success ??
+                entry.response?.ok ??
+                isSuccessfulEntry(entry),
+              status: entry.status,
+              data: entry.response?.data ?? entry.response ?? null,
+            },
           }))
         : [{ MENSAJE: 'Sin registros de error' }];
 
@@ -1152,7 +1139,6 @@ function App() {
       ...outputBlocks.map((block) => JSON.stringify(block, null, 2)),
       'FACTURAS_DEL_DIA:',
       JSON.stringify(facturasBlockSummary, null, 2),
-      ...facturaBlocks.map((block) => JSON.stringify(block, null, 2)),
       'ERRORES:',
       ...errorRecords.map((block) => JSON.stringify(block, null, 2)),
     ];
@@ -1880,13 +1866,35 @@ function App() {
                             className="form-control"
                             value={facturacionForm.NoFactura}
                             onChange={(event) =>
-                              setFacturacionForm((prev) => ({
-                                ...prev,
-                                NoFactura: event.target.value,
-                              }))
+                              handleFacturacionFieldChange(
+                                'NoFactura',
+                                event.target.value,
+                              )
                             }
+                            onBlur={triggerCufeLookup}
+                            onKeyDown={(event) => {
+                              if (event.key === 'Enter') {
+                                event.preventDefault();
+                                triggerCufeLookup();
+                              }
+                            }}
                             required
                           />
+                          {cufeLoading && (
+                            <div className="text-muted small mt-1">
+                              Consultando CUFE...
+                            </div>
+                          )}
+                          {facturaOriginal && facturaCufe && (
+                            <div className="mt-2">
+                              <span className="badge bg-secondary me-2">
+                                Factura original: {facturaOriginal}
+                              </span>
+                              <span className="badge bg-success">
+                                CUFE aplicado: {facturaCufe}
+                              </span>
+                            </div>
+                          )}
                         </div>
                         <div className="col-md-6">
                           <label className="form-label">EPS</label>
